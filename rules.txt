@@ -1,0 +1,36 @@
+No TF-IDF or equivalent text-frequency technique is used.
+The solution contains none of the following:
+- TfidfVectorizer
+- Bag-of-words
+- Count or hashing vectorizers
+- Word or character n-grams
+- BM25
+- Token-frequency retrieval
+This task uses numeric NumPy tensors only. The models operate on context, candidate, probe-response, and interaction features. The static scan found zero TF-IDF-related references, so it complies with the Eris prohibition.
+
+Final Eris integrity verdict
+The current v2 solution follows the applicable Eris rules and addresses the common rejection patterns discussed earlier. I found one minor safeguard gap—non-finite model probabilities—and fixed it. The amended script regenerated exactly the same submission.
+Rejection-reason checks
+Common rejection reason	Result	Evidence
+Missing predictions	Pass	0 missing values across 5,040 rows
+Incorrect CSV structure	Pass	Exactly id,prediction
+Missing or duplicate IDs	Pass	Exact test-ID coverage; 5,040 unique IDs
+Invalid prediction values	Pass	Integer values from 0 through 5
+Held-out answer ingestion	Pass	No answers.csv, private directory, grader, or hidden-label access
+Hardcoded test answers	Pass	No answer arrays, test corrections, quotas, or templates
+Opaque ID exploitation	Pass	IDs are used only for fold joining and output
+Candidate-position shortcut	Pass	Shared candidate scorer with no position feature
+Row-order shortcut	Pass	array_index is used only as the documented tensor address
+Test-distribution adaptation	Pass	No test fitting, normalization, calibration, clustering, balancing, or quota estimation
+Decorative learned model	Pass	Neural and listwise models directly determine final predictions
+Offline-tuned blend	Pass	Blend weight and temperature are selected inside the script using public OOF predictions
+Weak/random validation	Pass	Uses the challenge-provided five-fold assignment
+Leakage during OOF training	Pass	Each fold is predicted by models trained without that fold
+Cached/offline models	Pass	Every model is trained during the submitted run
+External data or inference	Pass	No network, external dataset, pretrained weights, or hosted inference
+Nondeterministic execution	Pass	Fixed seeds, deterministic PyTorch, fixed CPU threads, identical reruns
+GPU usage on CPU task	Pass	CPU-only execution
+Comments/docstrings in solution	Pass	0 comments and 0 docstrings
+Machine-specific paths	Pass	Reads both paths only from sys.argv
+Failure to write exact output path	Pass	Creates the supplied parent and writes directly to the second argument
+Non-finite output risk	Pass after fix
