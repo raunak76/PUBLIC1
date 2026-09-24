@@ -1,0 +1,161 @@
+id,output
+s_4deaa88cbcfe026d1b92bc2a,"find . -type f ! -perm 644 | grep ""use strict"""
+s_6c6c5b97e4847a8bb4923100,find . -name 'header.php' | xargs -n 1 cp topscripts.php
+s_793c9806807f745f519226f1,"find . -type f -name ""pattern_to_INCLUDE"" | grep pattern_to_exclude"
+s_c8fed2b111503598a163aabc,"find /etc -name 'nameserver' | grep "" 840"""
+s_332b32b2eca3d1199291c581,find normal/ -type f | xargs cat
+s_60ad61ca91de01b8eee7251e,find . -mindepth 2 | xargs rm
+s_73654e488b5aac59dd30cf67,find . -name file1 | wc -l
+s_314fce3d2b36254b8e325842,find /usr/bin -type d | grep my_previous_alias
+s_b0ea0c0ed71947404a4ba539,find . -mtime 1 | head -1
+s_ce534c0719936e9123420736,"find . -name ""*fink*"" | xargs rmdir 2>/dev/null"
+s_9d3e40eaf3825f2219240cf1,find . -iname '*.css' | grep -i user-user
+s_157e2700d91b72d259a23701,find . -name '.+\.(c|cpp|h)$' | xargs touch
+s_c1f88847f4ed1e5d758ee661,find . -size +50M -size -100M | xargs touch
+s_8bb3db12635c6e33f9505d7c,"find $2 -iname ""photo.jpg"" | grep -i $1"
+s_5ebff4e29206c5f54c4cc44c,find ~/foo/bar -name FooBar -print | xargs -n 1 cp -i file.dat
+s_a9c7b10c228aeec2a6ee2bd6,"find . -name ""*.[ch]"" | grep thing"
+s_05d85a5ae3b4dccf25d88ae3,"find . -name ""_test.rb"" | split -l 1000000 - _spec.rb"
+s_a012372c85fbd3ed50d0e177,find /tmp -type f -empty | xargs scp user@remote:
+s_a8be90ad5b3ab339e0121f63,find / -type f -print0 | wc -l
+s_bf706140022c4701980ac57d,find . -name 1.txt | xargs dig TXT
+s_d069bb81f0fdaa3a9262df42,"find . -name ""*.pdf"" -print | xargs rmdir"
+s_c4be398b60dd50f87b95b01a,find . -type f | xargs tree
+s_0102b704d700ad92d09bee71,find . -mindepth 2 -type d | xargs -I'{}' find {} -mindepth 700 -maxdepth 700 -type d
+s_3a7862a7d4941a4243be5a2d,find . -iname 'anaconda.*' | grep file1.tar
+s_881bda5a5cef820402123870,diff -arq FOLDER1 FOLDER2 | tail -1
+s_63b5c4735399aedf70e6f31d,"find . -name ""articles"" | grep ""^d"""
+s_eeb65ed9bc90211f25af1e10,"find /foot/bar/ -type f | xargs -I {} mkdir -p <DEST_DIR>""/{}"""
+s_87368ed96d4bd32d603e124b,find . -regex '^Subject:.*unique subject' | xargs tree
+s_a6cc68657fb74b9f70f40a4e,find /your/dir -type f -size +5M | sort -n
+s_fc48c3b68ec76a9638ec4148,"find . -name ""_test.rb"" | grep _spec.rb"
+s_9d4d1047b2cdb65acdf0dadb,"find . -iname ""*.jpg"" | wc -l"
+s_a5ff7f04528716a712015ed4,find ~/ -name '*.txt' | wc -l
+s_917ebc814eaf607675be924d,find . -name documentclass | xargs tree
+s_4d982c03fe31b458749f98f0,find . -name aaa.txt | xargs gzip -9
+s_d47d2b921584a7a44aae0bb9,find . -type f | wc -l
+s_456186f1e42c8b216cdea664,find / -maxdepth 1 -name string | xargs -I'{}' find {} -mindepth 1 -maxdepth 1 -type d
+s_02e7514917e83ced96bfb08f,"find . -name ""ssh"" | grep bin"
+s_b1a2b7eb486544b73b50a594,wc -l '*.php' | wc -l
+s_b075b7e179b86a051b5b2927,find . -name custlist\* | xargs rmdir 2>/dev/null
+s_0159495d9ce582b003076908,"find . -type f -name ""tgt/etc/*"" | xargs grep 'something'"
+s_e7d552747a0fbaf8a2751853,find . -type d | xargs rmdir 2>/dev/null
+s_ffc0dd2c83a57ec2a34ae1db,find . -perm 644 | xargs chmod 755
+s_23c92355c56c29dbef4eb3a4,find . -type f | head -1
+s_9c694a24fbd314ea3b932e45,find /tmp -name core | xargs mkdir -p
+s_93d77f76461fe8e8a345cb60,"find . -name HOGE | xargs -I{} grep -m 1 ""{}"" MOGA"
+s_8a3dc34d158e9674121490c0,"find . -name 'main(' | grep ""^d"""
+s_fa67398ec82abba332650b86,"find /tmp/log-files -name ""*.log"" | xargs tree"
+s_fb50a8355fe75e3e62f37ef3,"find . -type f -name ""*.php"" | wc -l"
+s_ceeee42450ea10f39509f561,"find . -name ""searchName"" | grep ""^d"""
+s_a270f02883dbe16e635ad4af,find $DIR/tmp/daily/ -name .tar.gz | sort -nr
+s_d695c4100b8cb3f6afd25f99,find . -name custlist\* | wc -l
+s_fbc785f756cf1c07147c404c,find / -perm /711 | wc -l
+s_6052b75f833572e2958938d7,"find . -name ""Message"" | grep 0bee89b07a248e27c83fc3d5951213c1"
+s_cd9e953afec4c8531149868c,find . -type f | xargs tree
+s_53200a4e15cc9ad061d01295,find $srchfor -iname teste2 | wc -l
+s_6b742b0edc3dcedaa05ec12e,"find /path -type d | grep ""^d"""
+s_d5e8c4c7f95e5afed9f62db4,find . -type f | wc -l
+s_20795b82503f8cb949e7d7f2,find /foldername -print0 | sort -n
+s_6cc885b098b536cf538787a9,"find . -iname ""*.jpg"" | sort -nr"
+s_7297c80d86114375ffbe0feb,"find ~ -type f -name ""*.git"" | grep --line-buffered my_pattern"
+s_2b329130d0562846b74310c8,find . -not -name file | xargs tree -s
+s_4aff6a806dfdf2556f0d4924,find . -perm 777 | xargs du -c
+s_90411a4e5a4dba57b38f49bc,find /etc -name test | xargs grep 'something'
+s_53f2a7b9b061d6e9741b0eed,tr '[:blank:]' \\t | rm -r '*favicon.ico*'
+s_4293228cc9f68c162ae6deb5,find . -name permission denied | xargs df -k .
+s_9b75595c8b005e89dcae081d,"find . -name ""*.???"" | grep ""^d"""
+s_722f8f8addf4efb2c70c7b9e,"find . -type f -name ""*.php"" | wc -l"
+s_c632faca3c08edfb0a46e62a,find /data/ -name 'command-' | sort -u
+s_bcbd000ad443601d8599438b,"find . -name ""*.java"" | wc -l"
+s_d485bb1ca650af1c3f1c22fd,"find . -name ""*.git"" | xargs rmdir 2>/dev/null"
+s_f533ca10414662d797444955,find / -user root | awk '{print $1}'
+s_6dd40bf22b874890b2d7acaf,find . -empty | wc -l
+s_5166a9d7ea3abb0a83a1dff3,find ../new -type d -empty | xargs rsync --recursive --exclude 'foo'
+s_ca940b652b9e584080015e1c,find /PATH_to_SEARCH -inum 199053 | sort -nr
+s_f105d55d527510827ad9cf8e,find . -name modules | wc -l
+s_411e188a9a1ad27765b67ea9,"find /root_path -name ""*.class"" | sort -u"
+s_2f88fa3e1ffd675584da0e30,find . -name 'demo' | grep sitesearch
+s_05659bbbd2428bfae2d227f9,"find $dir -iname ""*.txt"" | sort -nr"
+s_5c2473ac30ba45ee1ba0306e,find . -name file.ext | xargs ls -l
+s_7d35089fd9a9d1fc8be9d79f,find / -perm /a=x | xargs touch
+s_8542354c207d43d5335d21d1,find /tmp -type f -empty | xargs ls -l
+s_7c5ccfdd6a427a09ed841d6d,find ~/Music -maxdepth 1 -mindepth 1 -type d | xargs chmod 755
+s_6112fc82846ccbf93b356d9e,"find / -name ""*.class"" | sort -u"
+s_5cb4c908e2256029e05600f9,"find / -name ""*.c"" | wc -l"
+s_17de515879a239f7ca194d5b,find . -name '*.pdf' | xargs chown -R root:root
+s_897b8f1770bfa820e3bb748e,find /path/to/look/in/ -name '*.texturedata' | grep postgres
+s_5d49c287cb571fdb64a491ed,"find . -type f -name ""pathfolder"" | wc -l"
+s_6bf1972068748636275c9270,find . -name 'excluded files criteria' | xargs rm
+s_86ff5387515497bc1fa597a7,find / -path /proc -prune -o -user account -ls | grep RBENV
+s_4de57b9747c2a27ec8c45626,"find . -type f -name ""*.mp4"" | xargs touch"
+s_c3ee26f6eecd2cb6b466586a,find . -name test | md5sum
+s_43ada73569e2be3e920a2081,df -k . | tr -d '\n'
+s_4e2d1c077d588e8c610df825,find / -group root | od -c
+s_af77abb1e4b29e4cab4a4843,find /usr/local/etc/rc.d -mtime -1 | head -n 1
+s_da638aefc11050fa2758b1c0,"find . -name ""*.gif"" | xargs tree"
+s_fbce35a64a2d991a83738c51,find $FOLDER -mindepth 1 -type d | xargs -I'{}' find {} -mindepth 1 -maxdepth 1 -type d
+s_26b3252a15c2a2731d4093df,"find . -type d -name proc -prune -o -name '*.js' | grep "" ()"""
+s_598a6d0dacb97828ec82f8de,find . -iname example.com -type f | grep -vE 'beta'
+s_0fe5bdd5130e8a459a4444fe,find /lib/app -type f | sort -n
+s_d5f47581e1bb1145ba83c52e,"find . -name ""*.so"" | sort -n"
+s_577f25afb1dc5ab2adda2a3d,"find / -name ""*.txt"" | awk '{print $1}'"
+s_083fb398a5e15307e22b6938,find . -name git | xargs file
+s_550ccb42777a26794e26d8bc,find . -regex 'exclude these' | xargs rm -rf
+s_97d04d7c3ef0d10f93afc8af,"find ""."" -type d -printf ""%T@\n"" | sort -nr"
+s_0cc55d4dad365fe2f4bb6b14,find ~/ -name 'mp3' | wc -l
+s_ab0fe4127868303b93b1f7f8,"find . -type f -name ""*.mp4"" | sort -nr"
+s_d68ca1d53bcf0b1a76dcf9ed,find . -name 'sitesearch' | grep demo
+s_89e0fd6d5a33bdcdcc2ba710,find . -mtime -7 | xargs file.lst
+s_be9f3f0e47bcf9694d97e403,"find . -name '*$VERSION*' | xargs source <( grep ""marker"" config.sh )"
+s_74d396f727740be9fb02d2dd,find $dir -type f | wc -l
+s_7c1afb975b2a706ddc40ece6,find . -name esxcfg-firewall | xargs rm
+s_f9711fb758c3ad9a7ba9c61c,find . -type d -print0 | sort -n
+s_1b98276d9b9157044978b81d,find . -perm /u=s | xargs ls -l
+s_5c95512991de292ef6a42996,find . -name Permission denied | nl
+s_bebeefe8998170e648ea530a,find / -type d | wc -l
+s_cc7be69f44154cd261014091,find . -mtime -7 | xargs file.lst
+s_a07162d993fab2dded3263d8,"find /invalid_dir/ -name test | grep "" ()"""
+s_7729fb7419a1e33c12ea3977,"find . -type f -name ""*.srt"" | xargs touch"
+s_112e656b6c9c6d745d571227,"find . -iname ""*.note"" | grep ""^d"""
+s_05f11d1d15c29663cd6bf232,find /pdfs -name '*.PDF' | xargs rmdir 2>/dev/null
+s_770e39196b03432e9c394aaa,find / -mtime 50 | grep ^@
+s_9bddf75558375b2dc71fc3e1,find /folder/of/stuff -type d -print0 | xargs diff -q
+s_923611fa179b146ad860588d,find . -mtime -5 | grep app-
+s_610e7af8a4a79710d3b245b6,find . -name test | sort -n
+s_ff69dd84305eae278b83f22d,find . -type d | wc -l
+s_486992d88bb515f3909f4035,find . -name test | xargs rm
+s_26c3f601ecc6d819d7c470c8,ls -d */ | rm -r '(__pycache__|\.pyc|\.pyo$)'
+s_7a12af96ef03113cd64b3373,find xargstest/ -name 'file??' | xargs grep 'something'
+s_afcf2d276382f42bb912d037,"find . -type f -name ""*.php"" | wc -l"
+s_fd8f5e1b4fcd9ffea437c2c6,find xargstest/ -name 'file??' | wc -l
+s_5d4f0ecbb4dbfafbd12712d0,"find -name ""something"" | xargs rm"
+s_c30801f7cbe1790b0af3c094,find . -type d | sort -n
+s_2db4c84fc4800d9c6ced4c44,"find . -iname ""*.JPG"" | wc -l"
+s_4eb37d7fe9c95d22e157d604,find . -print0 | wc -l
+s_43535e1b26e4085c87447d20,"find . -type f -name ""pathfolder"" | wc -l"
+s_fc5237a0be9824691eabf681,find . -perm /a=x | xargs mkdir
+s_06daf960762387adca98c40a,"find . -name ""*.java"" | xargs chown -R root:root"
+s_8d48081ee9cede983ccfbaf4,find . -name foo.txt | xargs touch
+s_899cfaf3425b8596d0ec1d21,"find . -name ""*.c"" | md5sum"
+s_4fb51b01d399ddfcbc458d38,who | tr -cd '\0'
+s_27f99764b0b758b09e2a14fe,find xargstest/ -name 'file?B' | head -1
+s_aa6025253e8d9eef47bf2e86,find . -mtime 1 | xargs touch
+s_81d0b8e41e9c5c613957993a,"find . -type f -name ""mp4"" | sort -n"
+s_6cde5bc1e666ca524ad28df8,find /lib/app -type f | sort -nr
+s_51ee9681effe808b04766b43,"find . -name ""*.class"" | xargs ls -l"
+s_5179e6c30ec71dda045e3959,"find / -name ""2nd"" | xargs touch"
+s_74258fdc68e334d9691fcd46,ls -l | cpio -pdumv /path/to/destination/dir
+s_514c13a595e57dc546a5caee,"find /var/www/html/ -type f -name ""build*"" | sort -nr"
+s_022a45b1de4b47ee593d2300,"find / -name ""*.log"" | sort -nr"
+s_e2cae78581d37711ab0a37a1,find /randfiles/ -type f -empty | wc -l
+s_530825605a3f7f751ca0c6a6,find /home -maxdepth 1 -type f | xargs -I'{}' find {} -mindepth 1 -maxdepth 1 -type d
+s_990af4710ab75c5faa710761,find . -type d | xargs rmdir 2>/dev/null
+s_ab2446e7ca8a2c8b9e69c64a,find / -maxdepth 0 -type d | awk '{print $1}'
+s_0338966565fac9a021d03743,find . -mtime 1 | wc -l
+s_12ae2851e8d2654d03397d4d,find ./projects/insanewebproject -name blah | xargs ls -l
+s_cf0b811b58e32969092da5a0,find . -regex '.+\.php' | wc -l
+s_d05349470e331c20451fb82c,find . -empty | wc -l
+s_dabc32d622a9d1dff6427db8,"find /\(RT\|ED\).* -iname ""photo.jpg"" | xargs ls -l"
+s_230a7221f1bc553ee1f22afb,find . -type f | wc -l
+s_4aa618beea2b6ef0b5ca0704,find $1 -type f | wc -l
