@@ -1,7 +1,8 @@
 import os
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 import sys
 import json
-import time
 import math
 import random
 import re
@@ -13,18 +14,16 @@ import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering, get_linear_schedule_with_warmup
 
-T0 = time.time()
 SEED = 42
-MODEL_CANDIDATES = [os.environ.get("QA_MODEL", ""), "deepset/xlm-roberta-large-squad2", "xlm-roberta-large"]
+MODEL_NAME = "xlm-roberta-large"
 MAX_LEN = 384
 STRIDE = 128
 MAX_ANS_TOK = 120
-EPOCHS = 2
+EPOCHS = 3
 LR = 1.5e-5
 BS = 8
 ACCUM = 2
 HOLDOUT_FRAC = 0.15
-TRAIN_BUDGET_S = 62 * 60
 
 
 def seed_all(s):
@@ -32,6 +31,9 @@ def seed_all(s):
     np.random.seed(s)
     torch.manual_seed(s)
     torch.cuda.manual_seed_all(s)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+    torch.use_deterministic_algorithms(True)
 
 
 TOK_RE = re.compile(r"\w+|[^\w\s]", re.UNICODE)
@@ -70,18 +72,9 @@ def grouped_score(df, preds):
 
 
 def load_model():
-    last = None
-    for name in MODEL_CANDIDATES:
-        if not name:
-            continue
-        try:
-            tok = AutoTokenizer.from_pretrained(name)
-            mdl = AutoModelForQuestionAnswering.from_pretrained(name)
-            print("model", name, flush=True)
-            return tok, mdl
-        except Exception as e:
-            last = e
-    raise last
+    tok = AutoTokenizer.from_pretrained(MODEL_NAME)
+    mdl = AutoModelForQuestionAnswering.from_pretrained(MODEL_NAME)
+    return tok, mdl
 
 
 def explode(df, with_labels):
@@ -136,7 +129,6 @@ def train(model, feats, dev):
     opt = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=0.01)
     steps = EPOCHS * math.ceil(n / (BS * ACCUM))
     sch = get_linear_schedule_with_warmup(opt, int(0.1 * steps), steps)
-    use_bf16 = dev.type == "cuda" and torch.cuda.is_bf16_supported()
     model.train()
     g = torch.Generator().manual_seed(SEED)
     for ep in range(EPOCHS):
@@ -144,7 +136,7 @@ def train(model, feats, dev):
         opt.zero_grad()
         for bi, i in enumerate(range(0, n, BS)):
             b = perm[i:i + BS]
-            with torch.autocast(device_type=dev.type, dtype=torch.bfloat16, enabled=use_bf16):
+            with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
                 out = model(input_ids=ids[b].to(dev), attention_mask=am[b].to(dev),
                             start_positions=st[b].to(dev), end_positions=en[b].to(dev))
             (out.loss / ACCUM).backward()
@@ -154,11 +146,7 @@ def train(model, feats, dev):
                 sch.step()
                 opt.zero_grad()
             if bi % 200 == 0:
-                print(f"ep{ep} b{bi} loss {out.loss.item():.4f} t={time.time() - T0:.0f}s", flush=True)
-            if time.time() - T0 > TRAIN_BUDGET_S:
-                print("train budget hit", flush=True)
-                model.eval()
-                return
+                print(f"ep{ep} b{bi} loss {out.loss.item():.4f}", flush=True)
     model.eval()
 
 
@@ -168,9 +156,8 @@ def predict(model, feats, rows, dev):
     ids = torch.tensor(feats["input_ids"])
     am = torch.tensor(feats["attention_mask"])
     best = {}
-    use_bf16 = dev.type == "cuda" and torch.cuda.is_bf16_supported()
     for i in range(0, n, 64):
-        with torch.autocast(device_type=dev.type, dtype=torch.bfloat16, enabled=use_bf16):
+        with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
             out = model(input_ids=ids[i:i + 64].to(dev), attention_mask=am[i:i + 64].to(dev))
         sl = out.start_logits.float().cpu().numpy()
         el = out.end_logits.float().cpu().numpy()
@@ -228,7 +215,7 @@ def decide(res, thr):
 def main():
     data_dir, out_path = sys.argv[1], sys.argv[2]
     seed_all(SEED)
-    dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    dev = torch.device("cuda")
     tr = pd.read_csv(os.path.join(data_dir, "train.csv"))
     te = pd.read_csv(os.path.join(data_dir, "test.csv"))
     groups = np.array(sorted(tr.group_id.unique()))
@@ -265,7 +252,7 @@ def main():
     sub = pd.DataFrame({"id": te.id.values, "spans": [json.dumps(p, separators=(",", ":")) for p in preds]})
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     sub.to_csv(out_path, index=False)
-    print("wrote", out_path, len(sub), f"total {time.time() - T0:.0f}s", flush=True)
+    print("wrote", out_path, len(sub), flush=True)
 
 
 if __name__ == "__main__":
