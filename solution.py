@@ -6,6 +6,7 @@ DATA, OUT = sys.argv[1], sys.argv[2]
 VALIDATE = os.environ.get("VALIDATE") == "1"
 tr = pd.read_csv(os.path.join(DATA, "train.csv"))
 te = pd.read_csv(os.path.join(DATA, "test.csv"))
+T_O, T_W = 0.46, 0.55
 CLS = ["fits", "wraps", "overflows"]
 NOSPACE = {"Han", "Thai"}
 
@@ -78,12 +79,77 @@ def build(df, L):
     return f
 
 
+TOK0 = re.compile(r"[a-z]+")
+
+
+class _Tok:
+    @staticmethod
+    def findall(s):
+        w = TOK0.findall(s)
+        return w + [a + "_" + b for a, b in zip(w, w[1:])]
+
+
+TOK = _Tok()
+
+
+def word_stats(df, L):
+    t = df[["string_id", "locale", "script", "source_text"]].copy()
+    t["res"] = np.log(df.reserve_px / df.source_min_width_px).values - df.locale.map(L.f_lr).values
+    sres = t.groupby("string_id").agg(res=("res", "mean"), txt=("source_text", "first"))
+    W = {}
+    for txt, r in zip(sres.txt, sres.res):
+        for w in set(TOK.findall(str(txt).lower())):
+            a = W.setdefault(w, [0.0, 0]); a[0] += r; a[1] += 1
+    WL = {}
+    for txt, loc, r in zip(t.source_text, t.locale, t.res):
+        for w in set(TOK.findall(str(txt).lower())):
+            a = WL.setdefault((w, loc), [0.0, 0]); a[0] += r; a[1] += 1
+    WS = {}
+    for txt, sc, r in zip(t.source_text, t.script, t.res):
+        for w in set(TOK.findall(str(txt).lower())):
+            a = WS.setdefault((w, sc), [0.0, 0]); a[0] += r; a[1] += 1
+    return W, WL, WS
+
+
+def word_feats(df, W, WL, WS, k=5.0, kl=3.0):
+    out = np.full((len(df), 8), np.nan)
+    for i, (txt, loc, sc) in enumerate(zip(df.source_text, df.locale, df.script)):
+        ws = TOK.findall(str(txt).lower())
+        if not ws:
+            continue
+        e = [W[w][0] / (W[w][1] + k) if w in W else 0.0 for w in ws]
+        n = [W[w][1] if w in W else 0 for w in ws]
+        el = [WL[(w, loc)][0] / (WL[(w, loc)][1] + kl) for w in ws if (w, loc) in WL]
+        es = [WS[(w, sc)][0] / (WS[(w, sc)][1] + k) for w in ws if (w, sc) in WS]
+        out[i] = [np.mean(e), np.min(e), np.max(e), np.mean(np.log1p(n)),
+                  np.mean(el) if el else np.nan, len(el) / len(ws),
+                  np.mean(es) if es else np.nan, len(es) / len(ws)]
+    return pd.DataFrame(out, index=df.index, columns=["we_mean", "we_min", "we_max", "we_cnt", "wl_mean", "wl_frac",
+                                                      "ws_mean", "ws_frac"])
+
+
+def add_word(train, test, L, Xtr, Xte, nf=5):
+    sids = train.string_id.unique()
+    fold = dict(zip(sids, np.random.RandomState(1).randint(0, nf, len(sids))))
+    fo = train.string_id.map(fold).values
+    parts = []
+    for k in range(nf):
+        W, WL, WS = word_stats(train[fo != k], L)
+        parts.append(word_feats(train[fo == k], W, WL, WS))
+    Xtr = Xtr.join(pd.concat(parts))
+    W, WL, WS = word_stats(train, L)
+    Xte = Xte.join(word_feats(test, W, WL, WS))
+    return Xtr, Xte
+
+
 def score(y, pc, T, R, loc):
     def cc_macro(a, b):
         return max(0, (f1_score(a, b, average="macro", labels=CLS) - 1 / 3) / (2 / 3))
     s_fit = cc_macro(y, pc)
     over = np.clip((R - T) / T, 0, None); under = np.clip((T - R) / T, 0, None)
     s_res = np.clip(1 - over - 3 * under, 0, 1).mean()
+    wd = {l: cc_macro(y[loc == l], pc[loc == l]) for l in np.unique(loc) if (loc == l).sum() >= 40}
+    print(sorted(wd.items(), key=lambda x: x[1])[:4])
     ws = [cc_macro(y[loc == l], pc[loc == l]) for l in np.unique(loc) if (loc == l).sum() >= 40]
     share = (y == "overflows").mean()
     fo = f1_score(y == "overflows", pc == "overflows")
@@ -93,27 +159,60 @@ def score(y, pc, T, R, loc):
     return tot
 
 
-def fit_predict(train, test, cold):
+H = np.array([0.95, 1.10, 1.25, 1.45, 1.75])
+BOXF = ["box_ratio", "box_sw", "box_seg", "exp_box", "exp_box_p"]
+GB = dict(learning_rate=0.05, num_leaves=63, min_child_samples=40, subsample=0.8, subsample_freq=1,
+          colsample_bytree=0.8, verbose=-1)
+
+
+def set_box(X, df, box):
+    X = X.copy()
+    X["box_ratio"] = box / df.source_min_width_px.values
+    X["box_sw"] = box / df.source_width_px.values
+    X["box_seg"] = box / df.source_widest_segment_px.values
+    X["exp_box"] = X.box_ratio / np.exp(X.f_lr)
+    X["exp_box_p"] = X.box_ratio / np.exp(X.p_lr)
+    return X
+
+
+def augment(X, df):
+    """The translation's reserve does not depend on the box, so every labelled row tells us whether
+    it would overflow at each of the 5 published headroom steps."""
+    Xs, ys = [], []
+    for h in H:
+        box = np.round(h * df.source_min_width_px.values)
+        Xs.append(set_box(X, df, box)); ys.append((df.reserve_px.values > box).astype(int))
+    return pd.concat(Xs, ignore_index=True), np.concatenate(ys)
+
+
+def fit_predict(train, test, cold, alpha=0.72):
     L = locale_table(train, cold)
     Xtr, Xte = build(train, L), build(test, L)
+    Xtr, Xte = add_word(train, test, L, Xtr, Xte)
+    base = [c for c in Xtr.columns if c not in BOXF]
     ytr = np.log(train.reserve_px / train.source_min_width_px)
-    # warm locales are weighted down a bit so cold transfer isn't dominated by memorised stats
-    reg = lgb.LGBMRegressor(objective="quantile", alpha=0.72, n_estimators=900, learning_rate=0.04,
-                            num_leaves=63, min_child_samples=30, subsample=0.8, subsample_freq=1,
-                            colsample_bytree=0.8, verbose=-1)
-    reg.fit(Xtr, ytr)
-    R = np.exp(reg.predict(Xte)) * test.source_min_width_px.values
-    yc = train.fit_class.map({c: i for i, c in enumerate(CLS)})
-    clf = lgb.LGBMClassifier(n_estimators=700, learning_rate=0.04, num_leaves=63, min_child_samples=30,
-                             subsample=0.8, subsample_freq=1, colsample_bytree=0.8,
-                             class_weight="balanced", verbose=-1)
-    clf.fit(Xtr, yc)
-    P = clf.predict_proba(Xte)
-    pc = np.array(CLS)[P.argmax(1)]
-    # 1-line components cannot wrap
-    one = test.max_lines.values == 1
-    pc[one] = np.where(P[one, 2] > P[one, 0], "overflows", "fits")
-    return pc, R
+    reg = lgb.LGBMRegressor(objective="quantile", alpha=alpha, n_estimators=800, **GB)
+    reg.fit(Xtr[base], ytr)
+    R = np.exp(reg.predict(Xte[base])) * test.source_min_width_px.values
+    # overflow: augmented binary model over the headroom grid
+    Xa, ya = augment(Xtr, train)
+    ovf = lgb.LGBMClassifier(n_estimators=800, **GB).fit(Xa, ya)
+    p_ovf = ovf.predict_proba(Xte)[:, 1]
+    # single-line width > box ("does not fit on one line"): 1-line rows augmented + multi-line rows as labelled
+    m1 = (train.max_lines == 1).values
+    Xa1, ya1 = augment(Xtr[m1], train[m1])
+    Xw = pd.concat([Xa1, Xtr[~m1]], ignore_index=True)
+    yw = np.concatenate([ya1, (train.fit_class.values[~m1] != "fits").astype(int)])
+    wm = lgb.LGBMClassifier(n_estimators=800, **GB).fit(Xw, yw)
+    p_w = wm.predict_proba(Xte)[:, 1]
+    return p_ovf, p_w, R
+
+
+def decide(p_ovf, p_w, ml, t_o=0.5, t_w=0.5):
+    pc = np.where(p_w > t_w, "wraps", "fits").astype(object)
+    pc[ml == 1] = "fits"
+    pc[p_ovf > t_o] = "overflows"
+    return pc.astype(str)
 
 
 cold = set(tr[tr.groupby("locale").locale.transform("size") <= 12].locale)
@@ -128,11 +227,14 @@ if VALIDATE:
     is_val = tr.string_id.isin(val_str) | tr.surface.isin(surf)
     trn = tr[~is_val & (~tr.locale.isin(sim_cold) | tr.string_id.isin(pilot_ids))]
     val = tr[is_val & ~tr.string_id.isin(pilot_ids)]
-    pc, R = fit_predict(trn, val, cold | sim_cold)
-    score(val.fit_class.values, pc, val.reserve_px.values, R, val.locale.values)
-    vc = val.locale.isin(sim_cold).values
-    score(val.fit_class.values[vc], pc[vc], val.reserve_px.values[vc], R[vc], val.locale.values[vc])
+    p_ovf, p_w, R = fit_predict(trn, val, cold | sim_cold)
+    ml = val.max_lines.values
+    for to in [0.46]:
+        for tw in [0.55]:
+            print(to, tw, end=" ")
+            score(val.fit_class.values, decide(p_ovf, p_w, ml, to, tw), val.reserve_px.values, R, val.locale.values)
 
-pc, R = fit_predict(tr, te, cold)
+p_ovf, p_w, R = fit_predict(tr, te, cold)
+pc = decide(p_ovf, p_w, te.max_lines.values, T_O, T_W)
 pd.DataFrame({"item_id": te.item_id, "fit_class": pc, "reserve_px": np.round(np.maximum(R, 1.0), 2)}).to_csv(OUT, index=False)
 print("wrote", OUT, len(te))
