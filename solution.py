@@ -15,6 +15,9 @@ DATA, OUT = sys.argv[1], sys.argv[2]
 tr = pd.read_csv(os.path.join(DATA, "train.csv"))
 te = pd.read_csv(os.path.join(DATA, "test.csv"))
 T_O, T_W = 0.46, 0.55
+# cold locales: the pilot-only size estimate is less certain, so call overflow earlier and reserve a bit more
+# (both chosen on a held-out split of train.csv with simulated cold locales)
+T_O_COLD, COLD_RESERVE = 0.30, 1.06
 CLS = ["fits", "wraps", "overflows"]
 NOSPACE = {"Han", "Thai"}
 
@@ -67,7 +70,7 @@ def locale_table(train, cold):
     wg = g[~g.index.isin(cold)]
     prior = g.script.map(wg.groupby("script").dlr.mean()).fillna(0.0)
     prior_w = g.script.map(wg.groupby("script").dlw.mean()).fillna(0.0)
-    K = 3.0
+    K = 1.0
     P = pd.DataFrame(index=g.index)
     P["p_lr"] = ms.lr.mean() + (g.n * g.dlr + K * prior) / (g.n + K)
     P["p_lw"] = ms.lw.mean() + (g.n * g.dlw + K * prior_w) / (g.n + K)
@@ -81,16 +84,20 @@ def locale_table(train, cold):
     L = P.join(F, how="outer")
     L["script"] = t.groupby("locale").script.first()
     warm = L[L.f_lr.notna() & L.p_lr.notna()]
+    Lc = L.copy()  # "cold view": every locale's full stats estimated from its pilot only
     for c in ["f_lr", "f_lw", "f_sd", "f_q", "f_lr1", "f_lrm", "f_ovf"]:
         base = "p_lw" if c == "f_lw" else "p_lr"
         if c in ("f_sd", "f_ovf"):
             # regress on pilot mean
             a, b = np.polyfit(warm.p_lr, warm[c], 1)
-            L.loc[L[c].isna(), c] = a * L.p_lr + b
+            est = a * L.p_lr + b
         else:
-            off = (warm[c] - warm[base]).mean()
-            L.loc[L[c].isna(), c] = L[base] + off
-    return L.drop(columns="script")
+            est = L[base] + (warm[c] - warm[base]).mean()
+        L.loc[L[c].isna(), c] = est
+        Lc[c] = est
+    L["is_cold"] = L.index.isin(cold).astype(int)
+    Lc["is_cold"] = 1
+    return L.drop(columns="script"), Lc.drop(columns="script")
 
 
 def build(df, L):
@@ -191,9 +198,16 @@ def augment(X, df):
 
 
 def fit_predict(train, test, cold, alpha=0.72):
-    L = locale_table(train, cold)
+    L, Lc = locale_table(train, cold)
     Xtr, Xte = build(train, L), build(test, L)
     Xtr, Xte = add_word(train, test, L, Xtr, Xte)
+    # cold-view copies of the warm rows: the model learns to size a language from its pilot alone,
+    # which is all it has for the cold locales at prediction time.
+    w = ~train.locale.isin(cold).values
+    Xc = build(train[w], Lc).join(Xtr.loc[w, [c for c in Xtr.columns if c.startswith(("we_", "wl_", "ws_"))]])
+    Xc[["wl_mean", "wl_frac"]] = np.nan
+    Xtr = pd.concat([Xtr, Xc[Xtr.columns]], ignore_index=True)
+    train = pd.concat([train, train[w]], ignore_index=True)
     base = [c for c in Xtr.columns if c not in BOXF]
     ytr = np.log(train.reserve_px / train.source_min_width_px)
     reg = lgb.LGBMRegressor(objective="quantile", alpha=alpha, n_estimators=800, **GB)
@@ -223,5 +237,8 @@ def decide(p_ovf, p_w, ml, t_o=0.5, t_w=0.5):
 cold = set(tr[tr.groupby("locale").locale.transform("size") <= 12].locale)
 p_ovf, p_w, R = fit_predict(tr, te, cold)
 pc = decide(p_ovf, p_w, te.max_lines.values, T_O, T_W)
+is_c = te.locale.isin(cold).values
+pc[is_c] = decide(p_ovf, p_w, te.max_lines.values, T_O_COLD, T_W)[is_c]
+R = R * np.where(is_c, COLD_RESERVE, 1.0)
 pd.DataFrame({"item_id": te.item_id, "fit_class": pc, "reserve_px": np.round(np.maximum(R, 1.0), 2)}).to_csv(OUT, index=False)
 print("wrote", OUT, len(te))
