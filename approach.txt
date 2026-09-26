@@ -1,0 +1,48 @@
+Approach: pairwise correlation templates + annealed assignment decoding
+
+Idea
+Electrode identity is recovered from how each channel co-varies with every other
+channel. Nearby scalp electrodes share signal, and this relationship transfers
+across people much better than any single channel's own spectrum (a per-channel
+spectral classifier was near chance in development). The task is therefore
+treated as a quadratic assignment problem: find the permutation of the 64 labels
+that maximises the likelihood of all 64x64 channel-pair relationships, with the
+FP1 and O2 anchor rows fixed.
+
+Pair features (deterministic, per packet only)
+For every channel pair, 23 numbers are computed from the half-second window:
+Fisher-z correlations of the raw signal, first and second differences, the
+common-average re-referenced signal (and its difference), the signal with 1, 2
+or 3 leading principal components removed, band-limited signals (0-4, 4-8, 8-13,
+13-30, 30-80, 30-50, 50-80 Hz, and 0-4 / 8-13 / 13-30 Hz after common-average
+referencing), alpha and beta envelope correlations, the symmetric lag-1
+correlation and antisymmetric lag-1 and lag-2 correlations (phase lead/lag).
+
+Model
+For each ordered electrode pair (a, b) a multivariate Gaussian over the 23
+features is fitted on the labeled training + validation packets. Each pair's
+covariance is shrunk strongly toward the covariance pooled over all pairs
+(shrinkage weight 1000 pseudo-samples, plus a small ridge). The log-likelihood
+is written as a linear function of quadratic pair features, so the full score
+tensor W[i, a, j, b] for a packet is one matrix product.
+
+Decoding
+Simulated annealing over swaps of the 62 unanchored rows maximises the sum of
+pair log-likelihoods. Swap gains are evaluated in O(1) from a maintained row x
+label context matrix. The starting temperature is set from the spread of random
+swap gains in that packet; 10 restarts x 500k proposals, best score kept. Each
+packet is decoded independently with a fixed seed; no test statistics, no
+cross-packet linking, no test-time fitting. The output is a permutation by
+construction, anchors are preserved, and both are asserted before writing.
+
+Development
+Metric reproduced locally (accuracy over the 62 unanchored rows, mean over
+packets). Feature sets, shrinkage and annealing settings were chosen with
+6-fold participant-grouped cross-validation over the 72 labeled participants
+(train + validation pooled, folds split by subject_group). Tried and rejected:
+per-channel spectral unary model, left/right mirror augmentation, and
+discriminative swap-margin fine-tuning (all lowered held-out accuracy).
+
+Runtime
+CPU only, numpy/scipy only, up to 10 worker processes. About 9 minutes on
+4 cores end to end; well inside the 5,400 s limit.
