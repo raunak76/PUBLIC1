@@ -1,9 +1,17 @@
+"""Localisation fit/reserve predictor.
+
+Usage: python solution.py <public_data_dir> <submission_csv_path>
+
+Compliance: every model, statistic, encoding and threshold is fitted on train.csv only (thresholds were chosen on
+a held-out split of train.csv). test.csv is only featurised and scored by the fitted models: no test-time
+augmentation or normalisation, no pseudo-labelling, no domain adaptation. No language models, translation memories,
+parallel corpora or external data are used; the only inputs are the files in the public directory. LightGBM runs
+with fixed seeds and deterministic=True on CPU.
+"""
 import sys, os, re
 import numpy as np, pandas as pd, lightgbm as lgb
-from sklearn.metrics import f1_score
 
 DATA, OUT = sys.argv[1], sys.argv[2]
-VALIDATE = os.environ.get("VALIDATE") == "1"
 tr = pd.read_csv(os.path.join(DATA, "train.csv"))
 te = pd.read_csv(os.path.join(DATA, "test.csv"))
 T_O, T_W = 0.46, 0.55
@@ -49,7 +57,21 @@ def locale_table(train, cold):
     t["ml1"] = t.max_lines == 1
     pilot_ids = set(t[t.locale.isin(cold)].string_id)
     p = t[t.string_id.isin(pilot_ids)]
-    P = p.groupby("locale").agg(p_lr=("lr", "mean"), p_lw=("lw", "mean"), p_q=("lr", lambda x: x.quantile(.8)))
+    # string-adjusted pilot offsets: some cold locales have fewer than 12 pilot strings (mr: 2, te: 5), so the
+    # offset is measured against each string's warm-locale mean and shrunk toward the script's warm offset.
+    ms = p[~p.locale.isin(cold)].groupby("string_id")[["lr", "lw"]].mean()
+    p = p.join(ms, on="string_id", rsuffix="_s")
+    p = p.assign(dlr=p.lr - p.lr_s, dlw=p.lw - p.lw_s)
+    g = p.groupby("locale").agg(n=("dlr", "size"), dlr=("dlr", "mean"), dlw=("dlw", "mean"),
+                                script=("script", "first"))
+    wg = g[~g.index.isin(cold)]
+    prior = g.script.map(wg.groupby("script").dlr.mean()).fillna(0.0)
+    prior_w = g.script.map(wg.groupby("script").dlw.mean()).fillna(0.0)
+    K = 3.0
+    P = pd.DataFrame(index=g.index)
+    P["p_lr"] = ms.lr.mean() + (g.n * g.dlr + K * prior) / (g.n + K)
+    P["p_lw"] = ms.lw.mean() + (g.n * g.dlw + K * prior_w) / (g.n + K)
+    P["p_n"] = g.n
     full = t[~t.locale.isin(cold)]
     F = full.groupby("locale").agg(f_lr=("lr", "mean"), f_lw=("lw", "mean"), f_sd=("lr", "std"),
                                    f_q=("lr", lambda x: x.quantile(.8)))
@@ -142,27 +164,10 @@ def add_word(train, test, L, Xtr, Xte, nf=5):
     return Xtr, Xte
 
 
-def score(y, pc, T, R, loc):
-    def cc_macro(a, b):
-        return max(0, (f1_score(a, b, average="macro", labels=CLS) - 1 / 3) / (2 / 3))
-    s_fit = cc_macro(y, pc)
-    over = np.clip((R - T) / T, 0, None); under = np.clip((T - R) / T, 0, None)
-    s_res = np.clip(1 - over - 3 * under, 0, 1).mean()
-    wd = {l: cc_macro(y[loc == l], pc[loc == l]) for l in np.unique(loc) if (loc == l).sum() >= 40}
-    print(sorted(wd.items(), key=lambda x: x[1])[:4])
-    ws = [cc_macro(y[loc == l], pc[loc == l]) for l in np.unique(loc) if (loc == l).sum() >= 40]
-    share = (y == "overflows").mean()
-    fo = f1_score(y == "overflows", pc == "overflows")
-    s_ov = max(0, (fo - share) / (1 - share))
-    tot = .3 * s_fit + .25 * s_res + .2 * min(ws) + .25 * s_ov
-    print(f"fit {s_fit:.4f} res {s_res:.4f} worst {min(ws):.4f} ovf {s_ov:.4f} TOTAL {tot:.4f}")
-    return tot
-
-
 H = np.array([0.95, 1.10, 1.25, 1.45, 1.75])
 BOXF = ["box_ratio", "box_sw", "box_seg", "exp_box", "exp_box_p"]
 GB = dict(learning_rate=0.05, num_leaves=63, min_child_samples=40, subsample=0.8, subsample_freq=1,
-          colsample_bytree=0.8, verbose=-1)
+          colsample_bytree=0.8, verbose=-1, random_state=0, deterministic=True, n_jobs=4)
 
 
 def set_box(X, df, box):
@@ -216,24 +221,6 @@ def decide(p_ovf, p_w, ml, t_o=0.5, t_w=0.5):
 
 
 cold = set(tr[tr.groupby("locale").locale.transform("size") <= 12].locale)
-if VALIDATE:
-    rng = np.random.RandomState(0)
-    warm = sorted(set(tr.locale) - cold)
-    sim_cold = set(rng.choice(warm, 8, replace=False))
-    pilot_ids = set(tr[tr.locale.isin(cold)].string_id)
-    surf = ["support_diag", "dom_errors"]
-    strs = tr.string_id.unique(); rng.shuffle(strs)
-    val_str = set(strs[: len(strs) // 5]) - pilot_ids
-    is_val = tr.string_id.isin(val_str) | tr.surface.isin(surf)
-    trn = tr[~is_val & (~tr.locale.isin(sim_cold) | tr.string_id.isin(pilot_ids))]
-    val = tr[is_val & ~tr.string_id.isin(pilot_ids)]
-    p_ovf, p_w, R = fit_predict(trn, val, cold | sim_cold)
-    ml = val.max_lines.values
-    for to in [0.46]:
-        for tw in [0.55]:
-            print(to, tw, end=" ")
-            score(val.fit_class.values, decide(p_ovf, p_w, ml, to, tw), val.reserve_px.values, R, val.locale.values)
-
 p_ovf, p_w, R = fit_predict(tr, te, cold)
 pc = decide(p_ovf, p_w, te.max_lines.values, T_O, T_W)
 pd.DataFrame({"item_id": te.item_id, "fit_class": pc, "reserve_px": np.round(np.maximum(R, 1.0), 2)}).to_csv(OUT, index=False)
