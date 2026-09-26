@@ -98,6 +98,16 @@ def explained(e, bd):
     return s
 
 
+def match_score(e, bd):
+    a = bd.get(e["actor"], {})
+    s = float(e["actor_impact"] == a.get("initial_impact"))
+    if e["partner_kind"] == "vehicle" and e["partner"] in bd:
+        s += float(e["partner_impact"] == bd[e["partner"]]["initial_impact"])
+        s += 0.5 * float(side(e["partner_impact"]) == side(bd[e["partner"]]["initial_impact"]))
+    s += 0.5 * float(side(e["actor_impact"]) == side(a.get("initial_impact")))
+    return s
+
+
 # ----------------------------------------------------------------------------- card features
 def card_rows(c):
     sc, bd, bank, L = c["scene"], c["board"], c["bank"], c["L"]
@@ -161,6 +171,21 @@ def card_rows(c):
         r["a_uniq_expl"] = float(r["ai_match"] == 1 and expl[e["actor"]] == 1)
         r["p_uniq_expl"] = float(r["pi_match"] == 1 and expl[e["partner"]] == 1) if p else -1
         r["n_fhe_cards"] = cnt_type[fhe]
+        # siblings: cards of the same event type over the same vehicles (impact / role variants)
+        ms = match_score(e, bd)
+        sib = [match_score(x, bd) for x in bank if x is not e and x["event_type"] == e["event_type"]
+               and vehicles_of(x) == vehicles_of(e)]
+        r["n_sib"] = len(sib)
+        r["match_score"] = ms
+        r["sib_best"] = ms - max(sib) if sib else 9
+        r["sib_rank"] = sum(ms < x for x in sib)
+        # textual agreement between the card type and the actor's precrash narrative
+        crit = (a.get("critical_event", "") + " " + a.get("location_after_critical_event", "")).lower()
+        etl = e["event_type"].lower()
+        r["kw_left"] = float("left" in etl and "left" in crit) - float("left" in etl and "right" in crit)
+        r["kw_right"] = float("right" in etl and "right" in crit) - float("right" in etl and "left" in crit)
+        r["kw_depart"] = float(("departed" in crit or "returned" in crit or "off the edge" in crit or "end departure" in crit))
+        r["kw_opp"] = float("opposite" in crit or "over left lane line" in crit or "over the lane line on left" in crit)
         rows.append(r)
     return rows
 
@@ -291,7 +316,7 @@ def best_order(S, LP, LA):
         s = 0.0
         for a in range(len(seq)):
             for b in range(a + 1, len(seq)):
-                s += LP[seq[a], seq[b]]
+                s += LP[0, seq[a], seq[b]]
         ext = [-1] + seq + [-1]
         s += W_ADJ * sum(LA[ext[t] + 1, ext[t + 1] + 1] for t in range(len(ext) - 1))
         if s > bs:
@@ -305,7 +330,7 @@ SET_NAMES = ["sumlog", "pmean", "pmin", "pmax", "p2", "ranksum", "ntopL", "k_veh
              "n_inv", "n_notinv", "n_act", "n_expl", "n_notexpl", "n_inv_notexpl", "n_mhe", "n_notmhe",
              "fire_cov", "fire_miss", "fire_bad", "roll_cov", "roll_miss", "roll_bad",
              "max_ran_v", "ran_dep", "ran_nodep", "n_objv", "objv_noran", "max_pair", "n_pairs", "n_mv_noexpl",
-             "ord_best", "ord_margin", "nv", "L"]
+             "ord_best", "ord_margin", "nv", "L", "co_sum", "co_min"]
 
 
 def set_features(c, p, LP, LA):
@@ -353,7 +378,8 @@ def set_features(c, p, LP, LA):
         f += [max(pairs.values()) if pairs else 0, len(pairs)]
         f += [sum(1 for j in S if kinds[j] == "vehicle" and len(expl[j]) == 0)]
         seq, osc = best_order(S, LP, LA)
-        f += [osc, 0.0, len(bd), L]
+        cm = [LP[1, a, b] for a, b in itertools.combinations(S, 2)]
+        f += [osc, 0.0, len(bd), L, sum(cm), min(cm)]
         sets.append(S)
         orders.append(seq)
         F.append(f)
@@ -385,17 +411,32 @@ def fit_card(Xc, y):
     return lgb.train(P_CARD, lgb.Dataset(Xc, y), N_CARD)
 
 
+def co_items(idxs):
+    return [(c, i, j) for c in idxs for i in range(10) for j in range(10) if i != j]
+
+
 def fit_order(cdf, cases, gold, idxs):
     pw, pwy, ad, ady = gold_order_items(gold, idxs)
     mp = lgb.train(P_ORD, lgb.Dataset(pair_frame(cdf, cases, pw), pwy), N_ORD)
     ma = lgb.train(P_ORD, lgb.Dataset(pair_frame(cdf, cases, ad), ady), N_ORD)
-    return mp, ma
+    co = co_items(idxs)
+    coy = np.array([int(i in gold[c] and j in gold[c]) for c, i, j in co])
+    mc = lgb.train(P_ORD, lgb.Dataset(pair_frame(cdf, cases, co), coy), N_ORD)
+    return mp, ma, mc
 
 
 def predict_order(models, cdf, cases, idxs):
-    mp, ma = models
+    mp, ma, mc = models
     pw, ad = all_order_items(idxs)
-    return order_tables(pw, mp.predict(pair_frame(cdf, cases, pw)), ad, ma.predict(pair_frame(cdf, cases, ad)), idxs)
+    LP, LA = order_tables(pw, mp.predict(pair_frame(cdf, cases, pw)), ad, ma.predict(pair_frame(cdf, cases, ad)), idxs)
+    co = co_items(idxs)
+    pc = np.log(np.clip(mc.predict(pair_frame(cdf, cases, co)), 1e-4, 1 - 1e-4))
+    LC = {c: np.zeros((10, 10)) for c in idxs}
+    for (c, i, j), v in zip(co, pc):
+        LC[c][i, j] = v
+    for c in idxs:
+        LP[c] = np.stack([LP[c], (LC[c] + LC[c].T) / 2])  # [0] precedence, [1] co-membership
+    return LP, LA
 
 
 def build_sets(cases, idxs, p10, LP, LA):
