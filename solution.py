@@ -19,15 +19,18 @@ from sklearn.model_selection import GroupKFold
 
 SEED = 1234
 DEV = os.environ.get("DEV", "0") == "1"
-EPOCHS = int(os.environ.get("EPOCHS", "36"))
+EPOCHS = int(os.environ.get("EPOCHS", "25"))
 N_MODELS = int(os.environ.get("N_MODELS", "1"))
 BEAM = 5
+ARCH = os.environ.get("ARCH", "lstm")
+USE_GLOSS = os.environ.get("USE_GLOSS", "0") == "1"
+THREADS = int(os.environ.get("THREADS", "0"))
 T0 = time.time()
 
 random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
-torch.set_num_threads(max(1, min(10, os.cpu_count() or 1)))
+torch.set_num_threads(THREADS or max(1, min(10, len(os.sched_getaffinity(0)))))
 DEVICE = torch.device("cpu")
 
 
@@ -152,7 +155,9 @@ MAXS, MAXT = 48, 24
 
 
 def enc_src(hw, pos, gh):
-    ids = [src_vocab["<pos:" + pos + ">"]] + [src_vocab.get(c, UNK) for c in hw] + [SEP] + [src_vocab.get(c, UNK) for c in gh]
+    ids = [src_vocab["<pos:" + pos + ">"]] + [src_vocab.get(c, UNK) for c in hw] + [SEP]
+    if USE_GLOSS:
+        ids += [src_vocab.get(c, UNK) for c in gh]
     return ids[:MAXS]
 
 
@@ -199,6 +204,35 @@ class Seq2Seq(nn.Module):
         return self.out(o)
 
 
+
+class LSTMSeq2Seq(nn.Module):
+    def __init__(self, ns, nt, e=128, h=256, drop=0.3):
+        super().__init__()
+        self.se = nn.Embedding(ns, e, padding_idx=PAD)
+        self.te = nn.Embedding(nt, e, padding_idx=PAD)
+        self.enc = nn.LSTM(e, h, 2, batch_first=True, bidirectional=True, dropout=drop)
+        self.dec = nn.LSTM(e, 2 * h, 2, batch_first=True, dropout=drop)
+        self.att = nn.Linear(2 * h, 2 * h, bias=False)
+        self.comb = nn.Linear(4 * h, 2 * h)
+        self.out = nn.Linear(2 * h, nt)
+        self.drop = nn.Dropout(drop)
+
+    def encode(self, src, seg):
+        m = src == PAD
+        lens = (~m).sum(1).clamp(min=1)
+        x = self.drop(self.se(src))
+        pk = nn.utils.rnn.pack_padded_sequence(x, lens.cpu(), batch_first=True, enforce_sorted=False)
+        o, _ = self.enc(pk)
+        o, _ = nn.utils.rnn.pad_packed_sequence(o, batch_first=True, total_length=src.size(1))
+        return o, m
+
+    def decode(self, mem, mm, tgt):
+        y, _ = self.dec(self.drop(self.te(tgt)))
+        sc = torch.bmm(self.att(y), mem.transpose(1, 2)).masked_fill(mm.unsqueeze(1), float("-inf"))
+        ctx = torch.bmm(F.softmax(sc, -1), mem)
+        return self.out(self.drop(torch.tanh(self.comb(torch.cat([y, ctx], -1)))))
+
+
 def make_seg(src):
     seg = torch.zeros_like(src)
     for i in range(src.size(0)):
@@ -219,9 +253,10 @@ def pad(seqs, L=None):
 def train_model(src, tgt, seed, epochs):
     torch.manual_seed(seed)
     rng = np.random.RandomState(seed)
-    m = Seq2Seq(len(src_vocab) + 5 + len(POS_LIST), len(tgt_itos))
+    NS = len(src_vocab) + 5 + len(POS_LIST)
+    m = LSTMSeq2Seq(NS, len(tgt_itos)) if ARCH == "lstm" else Seq2Seq(NS, len(tgt_itos))
     opt = torch.optim.AdamW(m.parameters(), lr=1e-3, betas=(0.9, 0.98), weight_decay=0.01)
-    bs = 128
+    bs = int(os.environ.get("BS", "64"))
     n = len(src)
     steps = epochs * ((n + bs - 1) // bs)
     warm = 300
@@ -246,6 +281,13 @@ def train_model(src, tgt, seed, epochs):
             tot += loss.item() * len(idx)
         if ep % 5 == 0 or ep == epochs - 1:
             log(f"seed {seed} ep {ep} loss {tot / n:.4f}")
+        if DEV and ep % 5 == 4:
+            if True:
+                m.eval()
+                hh = beam_search([m], dev_src[:600], beam=1)
+                sc_ = np.mean([row_credit("s", h[0][0], "s", t) for h, t in zip(hh, dev_tgt[:600])])
+                ex_ = np.mean([canonical(h[0][0]) == canonical(t) for h, t in zip(hh, dev_tgt[:600])])
+                log(f"  dev credit {sc_:.4f} exact {ex_:.4f}")
     m.eval()
     return m
 
@@ -302,6 +344,10 @@ def beam_search(models, src, beam=BEAM, bs=128):
 
 
 sk = tr[tr.origin == "sanskrit"].reset_index(drop=True)
+if DEV:
+    dv = te[te.origin == "sanskrit"].reset_index(drop=True)
+    dev_src = [enc_src(h, p, g) for h, p, g in zip(dv.hw, dv.pos, dv.gh)]
+    dev_tgt = dv.etymon.tolist()
 S = [enc_src(h, p, g) for h, p, g in zip(sk.hw, sk.pos, sk.gh)]
 Tg = [enc_tgt(canonical(e)) for e in sk.etymon]
 models = []
