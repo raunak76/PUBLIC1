@@ -13,7 +13,7 @@ Approach
 4. Transductive member affinity: every profile appears in ten pools. After each decoding pass, the turns
    assigned to a profile in its other pools are pooled into seeker and supporter centroids; each turn's
    similarity to every profile's centroid (excluding the current pool) becomes new features, and the models
-   are retrained (two rounds). Training pools use out-of-fold predictions so train and test features match.
+   are retrained (four rounds). The local-search output of each round feeds the next round's centroids. Training pools use out-of-fold predictions so train and test features match.
 
 5. Decoding: Hungarian matching of seekers to supporters, an assignment-based path cover with exactly M chains
    (start/end costs from the position model, cycles broken iteratively), Hungarian chain-to-profile matching,

@@ -14,7 +14,7 @@ from sklearn.preprocessing import normalize
 
 SEED = 0
 NF = 5
-ROUNDS = 2
+ROUNDS = 4
 NT = os.cpu_count() or 4
 PAR = dict(objective='binary', learning_rate=0.05, num_leaves=31, min_data_in_leaf=50, feature_fraction=0.8,
            bagging_fraction=0.8, bagging_freq=1, lambda_l2=1.0, verbose=-1, num_threads=NT, seed=SEED,
@@ -376,7 +376,8 @@ def refine(args):
     psm = np.log(np.clip(pr['PS'].reshape(n, n), 1e-6, 1))
     fi = 0.5 * np.log(np.clip(p['pos']['first'][S], 1e-6, 1))
     la = 0.5 * np.log(np.clip(p['pos']['last'][P], 1e-6, 1))
-    au = lsm(logodds(pr['US'].reshape(M, n))); ap = lsm(logodds(pr['UP'].reshape(M, n)))
+    au = lsm(logodds(pr['US'].reshape(M, n)))
+    ap = lsm(logodds(pr['UP'].reshape(M, n))) if 'UP' in pr else np.zeros((M, n))
     ix = {t: i for i, t in enumerate(p['tids'])}
     sx = {s: k for k, s in enumerate(S)}; px = {s: k for k, s in enumerate(P)}
     chains = []
@@ -385,6 +386,12 @@ def refine(args):
         chains.append([(sx[seq[k]], px[seq[k + 1]]) for k in range(0, len(seq), 2)])
     chains = LocalSearch(spm, psm, fi, la, au, ap).run(chains)
     return {u: [x for (i, j) in chains[ui] for x in (p['tids'][S[i]], p['tids'][P[j]])] for ui, u in enumerate(p['uids'])}
+
+
+def refine_all(pools, SP_, PR, pred):
+    with Pool(NT) as pl:
+        out = pl.map(refine, [(pools[q], *SP_[q], PR[q], pred[q]) for q in pools], chunksize=4)
+    return dict(zip(list(pools), out))
 
 
 def post_from_pred(p, pred):
@@ -460,7 +467,7 @@ def main():
     for key in ['SP', 'PS', 'US']:
         for q, v in fit_predict(key, X, Y, tr_ids, fold_of, te_ids).items():
             PR[q][key] = v
-    pred = {q: decode(pools[q], *SP_[q], PR[q]) for q in pools}
+    pred = refine_all(pools, SP_, PR, {q: decode(pools[q], *SP_[q], PR[q]) for q in pools})
     print('base round done', flush=True)
 
     for r in range(ROUNDS):
@@ -481,15 +488,10 @@ def main():
         for key in ['SP', 'PS', 'US', 'UP']:
             for q, v in fit_predict(key, X, Y, tr_ids, fold_of, te_ids).items():
                 PR[q][key] = v
-        pred = {q: decode(pools[q], *SP_[q], PR[q]) for q in pools}
+        pred = refine_all(pools, SP_, PR, {q: decode(pools[q], *SP_[q], PR[q]) for q in pools})
         res = np.array([pool_score(pools[q], pred[q]) for q in tr_ids])
         print('round %d validation score %.4f link_f1 %.4f attribution %.4f exact %.4f' % ((r,) + tuple(res.mean(0))), flush=True)
 
-    with Pool(NT) as pl:
-        out = pl.map(refine, [(pools[q], *SP_[q], PR[q], pred[q]) for q in pools], chunksize=4)
-    pred = dict(zip(list(pools), out))
-    res = np.array([pool_score(pools[q], pred[q]) for q in tr_ids])
-    print('final out-of-fold validation score %.4f link_f1 %.4f attribution %.4f exact %.4f' % tuple(res.mean(0)), flush=True)
 
     rows = []
     for i in sub_ids:
