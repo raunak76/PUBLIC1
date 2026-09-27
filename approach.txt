@@ -1,0 +1,24 @@
+Approach
+
+1. Text representations: word TF-IDF (stop words removed), character 3-5 gram TF-IDF and a 200-dimensional
+   SVD of the word matrix, fitted on all released text (training sessions, test turns, profiles).
+
+2. Turn position model: logistic/ridge models on word n-grams plus opening/closing-word tokens, trained on the
+   ordered training sessions, predict whether a turn opens or closes a session and its relative position.
+
+3. Pair and attribution models (LightGBM): seeker->supporter adjacency, supporter->next-seeker adjacency, and
+   profile->seeker ownership. Features are similarities (word, char, SVD, shared words), their ranks/softmax
+   within the pool, position predictions, and length/question features.
+
+4. Transductive member affinity: every profile appears in ten pools. After each decoding pass, the turns
+   assigned to a profile in its other pools are pooled into seeker and supporter centroids; each turn's
+   similarity to every profile's centroid (excluding the current pool) becomes new features, and the models
+   are retrained (two rounds). Training pools use out-of-fold predictions so train and test features match.
+
+5. Decoding: Hungarian matching of seekers to supporters, an assignment-based path cover with exactly M chains
+   (start/end costs from the position model, cycles broken iteratively), Hungarian chain-to-profile matching,
+   then a local search (tail swaps, exchange relocation, supporter swaps) maximising the summed link and
+   attribution log-probabilities.
+
+Validation: 5-fold split by topic on the training pools (unseen topics, like the test set), official metric
+reimplemented. All models are trained inside the script; no external data or pretrained weights.
