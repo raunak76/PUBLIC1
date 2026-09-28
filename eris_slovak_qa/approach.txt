@@ -1,0 +1,55 @@
+Slovak multi-question evidence extraction - approach
+
+Task framing
+Each packet is a Slovak passage, its article heading and four questions. For every question the
+solution either returns a passage span or abstains. Because the packet score multiplies the mean
+question utility by the weakest published claim, the decision of which questions to answer is made
+per packet, not per question.
+
+Model
+A generic pretrained multilingual encoder (FacebookAI/xlm-roberta-large from the Hugging Face Hub)
+is fine-tuned as an extractive reader with start/end heads. The first segment is
+"<heading>: <question>" and the second segment is the passage (max 512 tokens, stride 128 for the
+rare longer passages), so the heading supplies the topic but can never be selected as an answer.
+Unanswerable questions, and windows that do not contain the gold span, are trained to point at the
+leading special token (SQuAD 2.0 style). Gold offsets are mapped to tokens with the fast tokenizer's
+offset mapping; leading/trailing whitespace is trimmed.
+
+Training
+AdamW (lr 1.5e-5, betas 0.9/0.98, weight decay 0.01 except biases and LayerNorm), layer-wise
+learning-rate decay 0.95, 10% linear warm-up then linear decay, batch 16 (two micro-batches of 8),
+bf16 autocast, gradient clipping 1.0, length-bucketed batches, fixed seeds. Up to two models are
+trained (seeds 42 and 1337), each for 3 epochs, and each leaves out a different 12% of source-document
+groups. A timing probe after 30 steps projects the runtime and, if needed, reduces to 2 epochs and/or
+a single model so the whole run stays inside the 90-minute limit.
+
+Validation and calibration
+All held-out data are whole group_id values, never packets split across groups. The official metric is
+reimplemented (NFKC + casefold, word/punctuation tokens, multiset token F1, weakest-claim packet
+factor, group-averaged mean). For every question the reader produces a candidate pool (top start/end
+pairs, at most 128 tokens, merged across windows) and a null score. On the held-out groups:
+- a logistic regression maps (null margin, mean null margin of the other three questions in the
+  packet, count of question content words absent from passage and heading) to P(unanswerable); its
+  held-out predictions come from 5-fold group cross-validation inside the held-out set;
+- a softmax temperature for the span distribution and a small bias on the null log-odds are chosen
+  on a coarse grid by the official metric; abstaining on everything is kept as a fallback candidate.
+
+Decision rule
+For each question, the answer span is chosen by minimum Bayes risk: the candidate with the highest
+expected token F1 against the model's span distribution. This also gives a distribution of the claim
+quality (0 if the question is unanswerable). For each packet all 16 answer/abstain subsets are scored
+by their exact expected packet score, E[(sum of utilities) x (weakest claim)] / 4, with quality
+discretised to 0.1 steps and questions treated as independent given the calibrated probabilities.
+The subset with the highest expected score is published. When two models are trained, their
+calibrated null probabilities and span distributions are averaged before this step.
+
+Output
+working/submission.csv with columns id,spans; each spans cell is a compact JSON array of four integer
+pairs, [-1,-1] for abstention, otherwise 0 <= start < end <= len(passage). The script asserts row
+count, unique ids and span validity before writing.
+
+Reproducibility and runtime
+python solution.py <public_dir> <output_csv>. Only train.csv and test.csv from the public directory
+are read; the only download is the public xlm-roberta-large checkpoint and tokenizer. Seeds are fixed
+and deterministic algorithms are requested (GPU kernels may still introduce tiny differences). The
+run is planned for one A10G (24 GB) within 90 minutes, including a 14-minute safety margin.
