@@ -227,6 +227,8 @@ def train_model(seed, feats, pad_id, plan):
         return max(0.0, (plan["total"] - step) / max(1, plan["total"] - warm))
 
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+    use_scaler = DEVICE.type == "cuda" and not torch.cuda.is_bf16_supported()
+    scaler = torch.cuda.amp.GradScaler(enabled=use_scaler)
     rng = np.random.RandomState(seed)
     step, t_probe = 0, None
     done = False
@@ -248,9 +250,11 @@ def train_model(seed, feats, pad_id, plan):
                 s_log = out.start_logits.float().masked_fill(mask == 0, neg)
                 e_log = out.end_logits.float().masked_fill(mask == 0, neg)
                 loss = (F.cross_entropy(s_log, sp) + F.cross_entropy(e_log, ep)) / 2
-                (loss * len(sub) / len(batch)).backward()
+                scaler.scale(loss * len(sub) / len(batch)).backward()
+            scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
+            scaler.step(optimizer)
+            scaler.update()
             scheduler.step()
             step += 1
             if step == 5:
