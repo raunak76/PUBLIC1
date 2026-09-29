@@ -1,0 +1,40 @@
+Dispatch chain restoration - approach
+
+Model
+A pretrained ELECTRA-small discriminator (google/electra-small-discriminator, public Hugging Face
+checkpoint) is fine-tuned end to end. Every text of an edition is encoded separately: openings as
+a sentence pair (opening text, place claims joined by ";"), excerpts on their own. Token states
+are mean-pooled and fed to three learned heads:
+  - membership: a two-layer projection to a normalised 256-d embedding with a learned temperature;
+  - order: an asymmetric "leads-into" bilinear scorer (vector a for the text, vector b for the
+    text that follows it) plus a per-text "earlier within its pool" logit.
+
+Training (whole training split, one edition = one batch of 40 texts)
+  - Membership loss: within-edition multi-positive contrastive loss. For each text, the other
+    four texts of the same report are positives and the remaining 35 texts of the same edition
+    (seven related reports) are negatives, which are exactly the confusers seen at test time.
+  - Order loss: for each report, the four possible readings (two middle orders x two closing
+    orders) are scored as the sum of the four link scores o->m1->m2->c1->c2 plus the position
+    logits, and trained with a softmax cross-entropy towards the true reading.
+AdamW (encoder lr 1e-4, heads 1e-3, weight decay 0.01), linear warm-up then linear decay,
+gradient clipping 1.0, 2 epochs, fixed seeds, bf16 autocast on GPU.
+
+Inference and decoding
+For each test edition the learned pairwise membership scores between all 40 texts are computed.
+Assignment is an exact integer program (scipy HiGHS): each opening receives one unordered pair of
+middles, every middle is used exactly once; objective = opening-middle scores + middle-middle
+score. The same is solved for the closing pool. The two pools are then re-solved alternately with
+the middle-closing scores of the currently assigned chains added, until the assignment is stable.
+Finally, for each assembled chain the learned order scorer picks the best of its four readings.
+Every row therefore has two distinct middle IDs and two distinct closing IDs from its edition and
+no ID is reused across the edition.
+
+Inputs and output
+Only dispatches.jsonl, train.csv, train_targets.csv and test.csv from the public directory are
+read. Identifiers are used only to join rows and write the output. The submission is written as
+target_id,prediction with compact JSON {"middle_ids":[...],"closing_ids":[...]}.
+
+Runtime
+python solution.py <public_dir> <submission_csv>. The encoder weights are loaded from the
+Hugging Face Hub (with a public mirror of the same checkpoint as fallback). ELECTRA-small is
+small, so training plus inference fits well inside the 90-minute A10G budget.
