@@ -3,3 +3,4 @@ models/
 work/
 solution/sw_cache/
 solution/sol.log
+__pycache__/
