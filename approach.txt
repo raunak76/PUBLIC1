@@ -1,0 +1,43 @@
+Approach: weakly supervised candidate ranking for calculator input binding
+
+1. Number spans. Each note is re-tokenised so that every reference x<k> in numbers_json maps to a
+   character span; the few notes where the regex disagrees with numbers_json are aligned by value.
+
+2. Candidates. For every calculator input (slot), every number in the note combined with every unit
+   allowed for that slot is a candidate (number, unit). Nothing is filtered out.
+
+3. Features per candidate (numeric only): value and log value; the converted value's z-score against
+   the slot's value distribution learned from labelled training bindings; whether the printed text
+   after the number matches the unit (pattern table used only as a feature); a frequency-based id of
+   the printed unit string; character / token distance to the nearest slot keyword on the left and
+   right, whether the nearest keyword of any slot belongs to this slot, keyword occurrence index;
+   blood-pressure pair shape (a/b); relative position in note and sentence; duplicate counts; order
+   of the candidate among keyword-adjacent candidates (earliest/latest); presence of temporal and
+   context cue words (admission, presented, arrival, later, follow-up, discharge, baseline, urine,
+   serum, ...) in the preceding window and in the sentence.
+
+4. Weak supervision (EM-style self-training).
+   - Start: a LightGBM LambdaRank candidate scorer (one query group per case and slot) trained on the 355 seed bindings.
+   - Search: for each non-seed training case, take the top-10 candidates per slot from the current
+     scorer, enumerate all combinations (and sex/race where the calculator uses them) and keep those
+     whose calculator result reproduces the training answer within 0.1%. The combination with the
+     highest joint model log-probability becomes that case's pseudo-label.
+   - Retrain the scorer on seeds + pseudo-labels; repeat 3 times, then fit the final scorer.
+   Other copies of the same value in the same unit are excluded from the negatives.
+
+5. Sex and race: small LightGBM classifiers on pronoun/gender-word and race-word counts, trained on
+   seed labels plus pseudo-labels from cases where sex/race changes the reproduced result.
+
+6. Inference: per slot, the highest-scoring (number, unit) candidate; sex/race from the classifiers.
+   Test cases are only scored by the trained models; no test-time search or fitting.
+
+Validation: note-grouped hold-out fold (20% of training notes, never seen in training).
+   Search reproduced the answer for ~90% of training cases.
+   LambdaRank vs pointwise classifier on the same fold: value accuracy 0.921 vs 0.916 (all held-out
+   cases), 0.904 vs 0.895 on held-out cases where an input keyword appears at least twice (harder
+   subset); full metric (value + simulated counterfactual + slot) on held-out seed cases 0.916.
+   LambdaRank was selected.
+   The evaluation set contains only cases with competing figures, so the hidden-test score is
+   expected to be lower than these numbers.
+
+Runtime: about 3-4 minutes on 4 CPU cores. Deterministic seeds. Libraries: numpy, pandas, lightgbm.

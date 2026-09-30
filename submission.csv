@@ -1,0 +1,372 @@
+case_id,binding
+m00aa50b,creatinine=x29 mg/dl; age=x0 years; sex=male; race=other
+m026a81a,creatinine=x5 mg/dl; age=x0 years; sex=male; race=other
+m0446a4f,weight=x4 kg; sodium=x8 mmol/l; age=x0 months; sex=male
+m0520cdb,weight=x15 kg; sodium=x21 mmol/l; age=x1 years; sex=female
+m053a202,total_cholesterol=x10 mmol/l; hdl=x9 mmol/l; triglycerides=x11 mmol/l
+m05f9d82,weight=x7 kg; sodium=x21 mmol/l; age=x35 years; sex=female
+m0620f39,weight=x5 kg; sodium=x13 mmol/l; age=x0 years; sex=female
+m0635705,weight=x7 kg; sodium=x18 mmol/l; age=x0 years; sex=male
+m066145a,weight=x18 kg; height=x19 cm
+m06c6900,creatinine=x26 mg/dl; age=x0 years; sex=male; race=other
+m08b634f,weight=x66 kg; height=x2 cm
+m0995ba2,creatinine=x21 mg/dl; age=x0 years; sex=male; race=other
+m0b0ebbb,sodium=x44 mmol/l; chloride=x5 mmol/l; bicarbonate=x43 mmol/l
+m0c23faa,creatinine=x6 mg/dl; age=x0 years; sex=male; race=other
+m0c3fba5,weight=x44 kg; sodium=x9 mmol/l; age=x0 years; sex=female
+m0d3d423,weight=x2 kg; sodium=x9 mmol/l; age=x0 years; sex=male
+m0f4fdaf,sodium=x20 mmol/l; urine_sodium=x41 mmol/l; creatinine=x26 umol/l; urine_creatinine=x42 umol/l
+m0f5d2fc,calcium=x8 mg/dl; albumin=x7 g/dl
+m102430d,sodium=x13 mmol/l; glucose=x16 mg/dl
+m105c7ae,creatinine=x1 mg/dl; age=x0 years; sex=male; race=other
+m11b680e,sbp=x1 mmhg; dbp=x2 mmhg
+m11e3909,weight=x2 kg; height=x1 cm
+m12e07c3,creatinine=x25 mg/dl; age=x0 years; sex=male; race=other
+m13c1820,sodium=x13 mmol/l; bun=x28 mg/dl; glucose=x34 mg/dl
+m141a3f3,sodium=x18 mmol/l; chloride=x20 mmol/l; bicarbonate=x40 mmol/l
+m14f40c5,creatinine=x89 mg/dl; age=x0 years; sex=male; race=other
+m14fffd3,sbp=x5 mmhg; dbp=x12 mmhg
+m150f109,weight=x4 kg; height=x5 cm; sex=male
+m15f98a7,creatinine=x13 mg/dl; age=x0 years; sex=female; race=other
+m16a8562,weight=x2 kg; height=x1 cm
+m171795b,sbp=x10 mmhg; dbp=x7 mmhg
+m175cfc4,weight=x20 kg; height=x18 cm
+m17fd04e,weight=x1 g; sodium=x16 mmol/l; age=x2 years; sex=male
+m186aab1,weight=x6 kg; height=x5 cm
+m1883207,sodium=x11 mmol/l; chloride=x37 mmol/l; bicarbonate=x34 mmol/l
+m1a98c0d,insulin=x14 uiu/ml; glucose=x13 mg/dl
+m1bb4593,weight=x8 kg; sodium=x71 mmol/l; age=x0 months; sex=male
+m1c35bb7,sodium=x20 mmol/l; urine_sodium=x42 mmol/l; creatinine=x25 mg/dl; urine_creatinine=x43 mg/dl
+m1c6636a,sbp=x39 mmhg; dbp=x8 mmhg
+m1cfc04a,weight=x3 kg; height=x4 cm
+m1d6d2f4,sodium=x22 mmol/l; glucose=x9 mg/dl
+m1dba757,weight=x8 kg; height=x5 cm; sex=male
+m1dc623d,sodium=x22 mmol/l; urine_sodium=x43 mmol/l; creatinine=x20 mg/dl; urine_creatinine=x42 mg/dl
+m1dd5c4a,sodium=x15 mmol/l; chloride=x16 mmol/l; bicarbonate=x30 mmol/l
+m1ead233,weight=x9 kg; height=x22 m
+m1f5e8d9,weight=x2 kg; height=x1 cm
+m1fb4594,creatinine=x32 umol/l; age=x0 years; sex=male; race=other
+m1fe13a7,weight=x7 kg; height=x3 cm
+m2055bd9,weight=x14 kg; height=x13 cm
+m20c8ffb,calcium=x13 mg/dl; albumin=x18 g/dl
+m21637d6,sbp=x25 mmhg; dbp=x16 mmhg
+m21c3443,weight=x10 kg; height=x8 cm
+m21ec03c,weight=x5 kg; height=x1 ft; sex=female
+m2249a54,weight=x13 kg; height=x15 cm
+m227b3c8,sodium=x8 mmol/l; glucose=x13 mg/dl
+m231a7de,weight=x1 kg; sodium=x22 mmol/l; age=x0 years; sex=female
+m24811d2,insulin=x15 uiu/ml; glucose=x14 mg/dl
+m24aa50e,sodium=x26 mmol/l; bun=x31 mg/dl; glucose=x33 mg/dl
+m251e96a,weight=x1 kg; sodium=x2 mmol/l; age=x0 years; sex=female
+m27802e5,weight=x13 kg; height=x15 m; sex=male
+m28b9c17,weight=x16 kg; height=x13 cm
+m297836c,sodium=x13 mmol/l; chloride=x15 mmol/l; bicarbonate=x21 mmol/l
+m2a2584a,weight=x7 kg; height=x20 cm
+m2baf4d7,creatinine=x31 umol/l; age=x0 years; sex=male; race=other
+m2beb50f,creatinine=x1 mg/dl; age=x0 years; sex=female; race=other
+m2ce64f5,weight=x1 kg; sodium=x10 mmol/l; age=x0 days; sex=male
+m2e20900,weight=x5 kg; sodium=x50 mmol/l; age=x0 months; sex=male
+m2ee4226,sodium=x12 mmol/l; chloride=x11 mmol/l; bicarbonate=x13 mmol/l; albumin=x14 g/dl
+m32ae6c7,weight=x4 kg; height=x5 cm
+m3409155,creatinine=x19 mg/dl; age=x0 years; sex=male; race=other
+m3499c52,sodium=x8 mmol/l; glucose=x25 mg/dl
+m350f873,creatinine=x34 mg/dl; age=x0 years; sex=female; race=other
+m3599cbb,weight=x2 kg; height=x1 cm
+m35c489b,sodium=x13 mmol/l; chloride=x19 mmol/l; bicarbonate=x69 mmol/l
+m36a83b7,sodium=x71 mmol/l; chloride=x12 mmol/l; bicarbonate=x17 mmol/l
+m36fea2e,sbp=x13 mmhg; dbp=x14 mmhg
+m3704dfd,creatinine=x20 mg/dl; age=x0 years; sex=female; race=other
+m374737f,creatinine=x6 umol/l; age=x0 years; sex=female; race=other
+m38f0e4e,sbp=x2 mmhg; dbp=x3 mmhg
+m3901c40,sodium=x14 mmol/l; bun=x13 mg/dl; glucose=x26 mg/dl
+m39eb80c,weight=x6 kg; height=x3 cm
+m39f241c,weight=x8 kg; sodium=x24 mmol/l; age=x0 years; sex=male
+m3a0f174,sodium=x15 mmol/l; urine_sodium=x24 mmol/l; creatinine=x20 mg/dl; urine_creatinine=x22 mg/dl
+m3a29c98,weight=x78 kg; height=x79 cm
+m3a56ba9,insulin=x34 uiu/ml; glucose=x33 mg/dl
+m3bc2e40,weight=x16 kg; height=x15 cm
+m3bdde25,sodium=x52 mmol/l; glucose=x37 mg/dl
+m3bf2739,calcium=x19 mg/dl; albumin=x28 g/dl
+m3ce8114,weight=x2 kg; height=x3 cm
+m3e87c3c,weight=x18 kg; height=x16 cm
+m3ecd602,weight=x3 kg; height=x2 cm
+m416f720,weight=x27 kg; height=x26 cm; sex=female
+m41717d6,weight=x7 g; sodium=x2 mmol/l; age=x0 days; sex=male
+m4204bb2,calcium=x48 mmol/l; albumin=x7 g/l
+m42a4d42,calcium=x6 mg/dl; albumin=x17 g/dl
+m42ab3ca,height=x1 cm; sex=male
+m42ba34e,sodium=x14 mmol/l; urine_sodium=x22 mmol/l; creatinine=x12 mg/dl; urine_creatinine=x23 mg/dl
+m4341945,height=x1 cm; sex=male
+m43c08e4,sodium=x25 mmol/l; urine_sodium=x45 mmol/l; creatinine=x23 mg/dl; urine_creatinine=x46 mg/dl
+m44fe510,weight=x7 kg; sodium=x11 mmol/l; age=x0 years; sex=female
+m4515d33,weight=x16 kg; height=x14 cm
+m4689b1e,height=x22 cm; sex=female
+m4786227,weight=x13 kg; height=x12 cm; sex=female
+m48ea075,weight=x38 kg; sodium=x26 mmol/l; age=x0 years; sex=male
+m4981676,weight=x5 kg; sodium=x97 mmol/l; age=x0 years; sex=male
+m4a30d6d,sodium=x17 mmol/l; chloride=x19 mmol/l; bicarbonate=x15 mmol/l
+m4a46f01,weight=x15 kg; height=x11 cm
+m4ab9f84,weight=x3 kg; height=x2 cm; sex=male
+m4b06983,sodium=x18 mmol/l; chloride=x20 mmol/l; bicarbonate=x40 mmol/l
+m4baa3e7,sodium=x18 mmol/l; urine_sodium=x37 mmol/l; creatinine=x16 mg/dl; urine_creatinine=x38 mg/dl
+m4c75390,weight=x18 kg; height=x21 cm
+m4c7eb9e,weight=x3 kg; sodium=x5 mmol/l; age=x0 years; sex=female
+m4caf153,weight=x6 kg; height=x5 cm
+m4cd81fc,sodium=x24 mmol/l; chloride=x2 mmol/l; bicarbonate=x31 mmol/l; albumin=x15 g/dl
+m4dc4416,calcium=x14 mg/dl; albumin=x11 g/dl
+m4ec3f92,creatinine=x6 mg/dl; age=x0 years; sex=female; race=other
+m4ed3caa,creatinine=x15 mg/dl; age=x0 years; sex=male; race=other
+m4f0780e,creatinine=x6 mg/dl; age=x0 years; sex=male; race=other
+m4fc6e45,sodium=x22 mmol/l; urine_sodium=x45 mmol/l; creatinine=x31 mg/dl; urine_creatinine=x46 mg/dl
+m4ff15e4,sodium=x13 mmol/l; chloride=x19 mmol/l; bicarbonate=x22 mmol/l
+m5039347,sodium=x14 mmol/l; glucose=x23 mmol/l
+m503f7d6,sodium=x6 mmol/l; chloride=x7 mmol/l; bicarbonate=x3 mmol/l
+m516f6d0,sodium=x18 mmol/l; urine_sodium=x39 mmol/l; creatinine=x15 mg/dl; urine_creatinine=x40 mg/dl
+m51bce56,weight=x1 kg; height=x2 cm
+m51efef5,weight=x1 kg; height=x2 cm
+m552cd74,height=x5 cm; sex=male
+m5577826,weight=x5 kg; sodium=x30 mmol/l; age=x0 years; sex=female
+m55c7b4e,weight=x14 kg; sodium=x34 mmol/l; age=x0 years; sex=male
+m565fee9,sodium=x3 mmol/l; urine_sodium=x4 mmol/l; creatinine=x2 mg/dl; urine_creatinine=x5 mg/dl
+m57aa636,sodium=x13 mmol/l; bun=x16 mg/dl; glucose=x15 mg/dl
+m57dd460,creatinine=x12 mg/dl; age=x0 years; sex=female; race=other
+m5861902,creatinine=x18 mg/dl; age=x0 years; sex=female; race=other
+m5878e67,weight=x4 kg; sodium=x35 mmol/l; age=x1 months; sex=female
+m58f5195,weight=x7 kg; height=x45 cm
+m5a6bee7,sodium=x14 mmol/l; chloride=x32 mmol/l; bicarbonate=x17 mmol/l
+m5ac2463,sodium=x20 mmol/l; urine_sodium=x38 mmol/l; creatinine=x25 mg/dl; urine_creatinine=x39 mg/dl
+m5d5db2a,weight=x2 kg; height=x3 m; sex=male
+m5eaefec,sodium=x10 mmol/l; chloride=x14 mmol/l; bicarbonate=x13 mmol/l
+m5f722d3,weight=x9 kg; height=x8 cm
+m5f96b52,weight=x17 kg; height=x16 cm; sex=male
+m5ffc40a,height=x1 cm; sex=male
+m6146d39,height=x14 cm; sex=male
+m61ca8ad,weight=x5 kg; height=x6 cm
+m62adf58,weight=x9 kg; height=x6 cm; sex=male
+m62fe94a,weight=x7 kg; height=x5 cm
+m63989f8,sodium=x20 mmol/l; glucose=x9 mg/dl
+m63f24cd,weight=x15 kg; sodium=x23 mmol/l; age=x0 years; sex=female
+m641331c,sodium=x26 mmol/l; bun=x10 mg/dl; glucose=x28 mg/dl
+m6448794,sbp=x9 mmhg; dbp=x10 mmhg
+m6481f8e,sbp=x3 mmhg; dbp=x4 mmhg
+m650cb4d,sodium=x23 mmol/l; glucose=x22 mg/dl
+m654d749,weight=x40 kg; height=x39 cm
+m659247f,sodium=x15 mmol/l; bun=x18 mg/dl; glucose=x19 mg/dl
+m65d9c31,weight=x1 kg; sodium=x12 mmol/l; age=x0 years; sex=male
+m65fddbc,height=x8 cm; sex=male
+m6785c96,weight=x8 kg; height=x7 cm
+m680c22e,insulin=x34 uiu/ml; glucose=x33 mg/dl
+m6856693,creatinine=x14 mg/dl; age=x0 years; sex=male; race=other
+m685ff85,weight=x4 kg; height=x3 cm
+m691fbca,height=x9 cm; sex=female
+m69e1e05,weight=x10 kg; sodium=x54 mmol/l; age=x0 years; sex=female
+m69ea73a,calcium=x11 mg/dl; albumin=x10 g/dl
+m6a71fef,sodium=x14 mmol/l; bun=x18 mmol/l; glucose=x23 mmol/l
+m6a7e6c9,sodium=x40 mmol/l; glucose=x56 mmol/l
+m6b05a83,weight=x2 kg; sodium=x22 mmol/l; age=x0 years; sex=female
+m6bacb22,sodium=x25 mmol/l; chloride=x27 mmol/l; bicarbonate=x28 mmol/l; albumin=x38 g/dl
+m6ccbb18,weight=x2 kg; height=x3 cm
+m6d3f30d,weight=x11 kg; height=x12 cm
+m6d5150c,sodium=x21 mmol/l; urine_sodium=x44 mmol/l; creatinine=x26 mg/dl; urine_creatinine=x43 mg/dl
+m6e4641a,sodium=x18 mmol/l; bun=x22 mg/dl; glucose=x24 mg/dl
+m71b363b,weight=x4 kg; height=x3 cm
+m71d0d89,creatinine=x18 umol/l; age=x0 years; sex=female; race=other
+m75983f3,weight=x10 kg; height=x9 cm
+m774f389,weight=x3 kg; height=x2 cm
+m779cf9e,sodium=x15 mmol/l; bun=x19 mg/dl; glucose=x21 mg/dl
+m79659ca,weight=x39 kg; height=x38 cm
+m7977532,weight=x5 kg; height=x4 cm
+m79778bd,creatinine=x5 mg/dl; age=x0 years; sex=female; race=other
+m7af7ebe,weight=x4 kg; height=x3 cm; sex=female
+m7b8d0b2,sodium=x20 mmol/l; urine_sodium=x38 mmol/l; creatinine=x18 mg/dl; urine_creatinine=x39 mg/dl
+m7c2796f,sodium=x13 mmol/l; chloride=x15 mmol/l; bicarbonate=x16 mmol/l
+m7ebe8f4,weight=x0 kg; height=x6 cm
+m7f344a9,weight=x28 kg; height=x29 cm
+m7f8c895,weight=x8 kg; sodium=x17 mmol/l; age=x0 years; sex=female
+m7f930a1,sodium=x12 mmol/l; glucose=x9 mg/dl
+m7fc814d,creatinine=x33 mg/dl; age=x0 years; sex=male; race=other
+m81dd830,age=x0 years; ast=x6 u/l; alt=x7 u/l; platelets=x40 /ul
+m822e92d,weight=x12 kg; sodium=x46 mmol/l; age=x0 years; sex=male
+m8334880,sbp=x4 mmhg; dbp=x5 mmhg
+m835903d,weight=x6 kg; height=x7 cm
+m84f32df,weight=x3 kg; sodium=x8 mmol/l; age=x0 years; sex=male
+m85c5681,height=x14 cm; sex=male
+m86dfb64,creatinine=x21 mg/dl; age=x0 years; sex=female; race=other
+m87a289e,sodium=x31 mmol/l; chloride=x37 mmol/l; bicarbonate=x46 mmol/l
+m889152e,weight=x8 kg; height=x10 cm
+m8a2cf21,creatinine=x23 mg/dl; age=x0 years; sex=male; race=other
+m8b50c6e,weight=x27 kg; height=x28 cm; sex=male
+m8b5ada0,sodium=x23 mmol/l; chloride=x64 mmol/l; bicarbonate=x22 mmol/l; albumin=x65 g/l
+m8b926e2,weight=x5 kg; height=x4 cm
+m8bba6f7,creatinine=x37 mg/dl; age=x0 years; sex=female; race=other
+m8bea4ca,weight=x6 kg; sodium=x17 mmol/l; age=x0 years; sex=male
+m8befa24,sodium=x17 mmol/l; chloride=x19 mmol/l; bicarbonate=x15 mmol/l
+m8c2036f,height=x5 cm; sex=male
+m8c5d973,height=x10 m; sex=male
+m8d02637,weight=x11 kg; height=x12 cm
+m8d73b5e,sodium=x13 mmol/l; chloride=x15 mmol/l; bicarbonate=x21 mmol/l
+m8d86554,sodium=x10 mmol/l; chloride=x11 mmol/l; bicarbonate=x13 mmol/l
+m8e45e2b,sodium=x6 mmol/l; chloride=x7 mmol/l; bicarbonate=x3 mmol/l
+m8eef75f,creatinine=x18 mg/dl; age=x0 years; sex=male; race=other
+m8f2371c,sbp=x9 mmhg; dbp=x10 mmhg
+m906d29d,weight=x2 g; sodium=x3 mmol/l; age=x0 days; sex=female
+m907a5bd,weight=x12 kg; height=x11 cm
+m90feb98,sodium=x16 mmol/l; urine_sodium=x41 mmol/l; creatinine=x21 mg/dl; urine_creatinine=x42 mg/dl
+m92357c3,sodium=x16 mmol/l; chloride=x18 mmol/l; bicarbonate=x21 mmol/l
+m92a00a8,weight=x4 kg; height=x1 cm; sex=male
+m9447653,sodium=x13 mmol/l; chloride=x15 mmol/l; bicarbonate=x21 mmol/l
+m9513fde,height=x7 cm; sex=male
+m95cac2e,sodium=x8 mmol/l; chloride=x16 mmol/l; bicarbonate=x27 mmol/l
+m95cdcba,height=x2 cm; sex=male
+m961acdb,weight=x4 kg; height=x3 cm
+m96a87f7,sodium=x26 mmol/l; urine_sodium=x47 mmol/l; creatinine=x24 mg/dl; urine_creatinine=x48 mg/dl
+m97797c3,insulin=x19 uiu/ml; glucose=x18 mg/dl
+m9907baa,weight=x5 kg; height=x4 cm
+m9b16b46,weight=x2 kg; height=x1 cm
+m9b42d8a,sodium=x28 mmol/l; chloride=x30 mmol/l; bicarbonate=x31 mmol/l
+m9c7c32a,weight=x9 g; height=x11 cm
+m9c98bb6,sodium=x3 mmol/l; urine_sodium=x4 mmol/l; creatinine=x1 mg/dl; urine_creatinine=x5 mg/dl
+m9cc8f3d,weight=x6 kg; height=x3 cm; sex=female
+m9d05b3f,weight=x3 kg; sodium=x66 mmol/l; age=x0 years; sex=female
+m9d81eb6,sodium=x7 mmol/l; chloride=x8 mmol/l; bicarbonate=x19 mmol/l
+m9dbfe7d,weight=x8 kg; height=x7 cm; sex=female
+m9f41e1c,weight=x3 g; height=x6 cm
+ma04836c,sodium=x15 mmol/l; urine_sodium=x19 mmol/l; creatinine=x32 mg/dl; urine_creatinine=x32 mg/dl
+ma050abf,sodium=x13 mmol/l; urine_sodium=x34 mmol/l; creatinine=x18 mg/dl; urine_creatinine=x36 mg/dl
+ma11beda,weight=x2 kg; height=x3 cm; sex=female
+ma1ba5d1,weight=x2 kg; sodium=x8 mmol/l; age=x0 years; sex=female
+ma3a73b7,weight=x3 kg; height=x2 cm
+ma44ebe3,weight=x14 kg; height=x13 cm; sex=male
+ma5d7dff,weight=x4 kg; height=x3 cm
+ma5f84d6,weight=x10 kg; sodium=x26 mmol/l; age=x0 years; sex=female
+ma6f83e1,sodium=x7 mmol/l; chloride=x9 mmol/l; bicarbonate=x10 mmol/l
+ma7618c6,sodium=x16 mmol/l; chloride=x18 mmol/l; bicarbonate=x21 mmol/l
+maa6f01b,weight=x4 kg; sodium=x17 mmol/l; age=x0 years; sex=female
+mab18f65,height=x11 cm; sex=female
+mac164c3,sodium=x18 mmol/l; urine_sodium=x38 mmol/l; creatinine=x16 mg/dl; urine_creatinine=x39 mg/dl
+mad93866,creatinine=x7 mg/dl; age=x0 years; sex=male; race=other
+madb3127,weight=x14 kg; sodium=x3 mmol/l; age=x0 years; sex=female
+madb4f9b,height=x9 cm; sex=female
+madc40cf,weight=x37 kg; height=x36 cm; sex=male
+mb17d29b,weight=x13 kg; height=x14 cm
+mb1b420f,sodium=x21 mmol/l; urine_sodium=x43 mmol/l; creatinine=x26 mg/dl; urine_creatinine=x44 mg/dl
+mb20bcb6,weight=x1 kg; sodium=x13 mmol/l; age=x0 weeks; sex=female
+mb258f44,weight=x2 kg; height=x1 cm
+mb2865bb,weight=x4 kg; height=x3 cm; sex=female
+mb2f77e8,sodium=x19 mmol/l; urine_sodium=x40 mmol/l; creatinine=x17 mg/dl; urine_creatinine=x41 mg/dl
+mb3a2ac2,sodium=x14 mmol/l; chloride=x32 mmol/l; bicarbonate=x17 mmol/l
+mb3f7312,weight=x7 kg; sodium=x20 mmol/l; age=x0 years; sex=female
+mb40f5c2,creatinine=x6 mg/dl; age=x0 years; sex=male; race=other
+mb413413,sodium=x24 mmol/l; urine_sodium=x48 mmol/l; creatinine=x32 mg/dl; urine_creatinine=x49 mg/dl
+mb678cda,sbp=x16 mmhg; dbp=x29 mmhg
+mb6840d8,sbp=x1 mmhg; dbp=x2 mmhg
+mb6befb3,sbp=x14 mmhg; dbp=x5 mmhg
+mb713b6f,sbp=x4 mmhg; dbp=x5 mmhg
+mb7630e7,sodium=x13 mmol/l; chloride=x19 mmol/l; bicarbonate=x20 mmol/l
+mb80805c,weight=x5 kg; height=x4 cm
+mb86e23b,sbp=x1 mmhg; dbp=x2 mmhg
+mb88ddba,weight=x10 kg; sodium=x36 mmol/l; age=x0 years; sex=female
+mb8d2476,weight=x5 kg; height=x6 cm
+mb94c366,sodium=x8 mmol/l; bun=x29 mg/dl; glucose=x25 mg/dl
+mb9f9a83,creatinine=x2 mg/dl; age=x0 years; sex=female; race=other
+mba204b1,sodium=x23 mmol/l; chloride=x25 mmol/l; bicarbonate=x19 mmol/l
+mba679f6,weight=x4 kg; height=x3 cm
+mbb1c9fe,height=x9 cm; sex=male
+mbc36b9b,weight=x3 kg; height=x2 cm; sex=male
+mbd2e6fb,weight=x2 kg; height=x1 cm
+mbd76aba,sodium=x52 mmol/l; bun=x51 mg/dl; glucose=x37 mg/dl
+mbe6bce6,weight=x5 kg; height=x4 cm
+mbe95f1e,sodium=x15 mmol/l; chloride=x17 mmol/l; bicarbonate=x18 mmol/l
+mbf6bba7,weight=x4 kg; height=x5 cm; sex=female
+mbfd891f,weight=x9 kg; height=x11 cm
+mc126d47,weight=x11 kg; height=x12 cm
+mc16371f,weight=x3 kg; sodium=x14 mmol/l; age=x0 years; sex=female
+mc213fb0,sodium=x7 mmol/l; chloride=x8 mmol/l; bicarbonate=x19 mmol/l
+mc28827d,height=x1 cm; sex=male
+mc298625,weight=x8 kg; height=x10 cm
+mc43b474,weight=x2 kg; height=x1 cm
+mc47ef2b,creatinine=x20 mg/dl; age=x0 years; sex=male; race=other
+mc4ba6f6,sodium=x22 mmol/l; urine_sodium=x43 mmol/l; creatinine=x27 mg/dl; urine_creatinine=x44 mg/dl
+mc4c6a2e,calcium=x11 mg/dl; albumin=x9 g/dl
+mc6e99cb,weight=x9 kg; height=x10 m
+mc99974d,sodium=x17 mmol/l; chloride=x23 mmol/l; bicarbonate=x26 mmol/l
+mcaa19a1,weight=x21 kg; height=x19 cm
+mccd70c3,sodium=x24 mmol/l; urine_sodium=x47 mmol/l; creatinine=x32 mg/dl; urine_creatinine=x48 mg/dl
+mcd0c61a,insulin=x21 uiu/ml; glucose=x20 mg/dl
+mcd201c8,calcium=x12 mg/dl; albumin=x14 g/dl
+mcd49d06,creatinine=x17 mg/dl; age=x0 years; sex=male; race=other
+mcd4b1e6,sodium=x24 mmol/l; glucose=x28 mg/dl
+mcdd9779,sbp=x8 mmhg; dbp=x9 mmhg
+mcf4c5a2,sodium=x17 mmol/l; urine_sodium=x35 mmol/l; creatinine=x22 mg/dl; urine_creatinine=x36 mg/dl
+md051586,sodium=x40 mmol/l; glucose=x4 mmol/l
+md0a35a9,sodium=x20 mmol/l; urine_sodium=x42 mmol/l; creatinine=x25 mg/dl; urine_creatinine=x43 mg/dl
+md1479e3,height=x82 cm; sex=male
+md29e3a8,sodium=x24 mmol/l; glucose=x29 mg/dl
+md2cab85,creatinine=x10 umol/l; age=x0 years; sex=female; race=other
+md320006,weight=x2 kg; sodium=x52 mmol/l; age=x0 years; sex=male
+md3d493f,creatinine=x18 umol/l; age=x0 years; sex=male; race=other
+md4b5cac,weight=x7 kg; height=x4 cm
+md5578e6,weight=x23 kg; sodium=x12 mmol/l; age=x0 years; sex=female
+md59e845,sodium=x33 mmol/l; chloride=x34 mmol/l; bicarbonate=x48 mmol/l
+md774d2d,height=x17 cm; sex=female
+md8086e5,sodium=x3 mmol/l; chloride=x5 mmol/l; bicarbonate=x6 mmol/l
+md96f6e2,weight=x2 kg; height=x1 cm
+md98c52f,creatinine=x5 mg/dl; age=x0 years; sex=male; race=other
+md99303d,sodium=x15 mmol/l; glucose=x9 mg/dl
+md9a35e0,weight=x16 kg; height=x14 cm
+md9eaca8,sbp=x10 mmhg; dbp=x11 mmhg
+mda0eef6,calcium=x2 mg/dl; albumin=x3 g/dl
+mda33558,weight=x22 kg; sodium=x63 mmol/l; age=x0 years; sex=female
+mda6930f,creatinine=x7 mg/dl; age=x0 years; sex=female; race=other
+mda7fd4f,sodium=x6 mmol/l; chloride=x9 mmol/l; bicarbonate=x15 mmol/l
+mda85391,weight=x1 kg; height=x2 cm
+mdbc77ac,weight=x1 kg; height=x2 cm
+mdbd7bfc,sbp=x7 mmhg; dbp=x8 mmhg
+mdd110b6,creatinine=x5 mg/dl; age=x0 years; sex=female; race=other
+mdd6bb7c,creatinine=x6 umol/l; age=x0 years; sex=female; race=other
+mdda0775,sodium=x18 mmol/l; urine_sodium=x41 mmol/l; creatinine=x23 mg/dl; urine_creatinine=x43 mg/dl
+mde6f10b,weight=x13 kg; height=x12 cm; sex=female
+mdf3f585,creatinine=x7 mg/dl; age=x0 years; sex=male; race=other
+mdf84097,creatinine=x3 umol/l; age=x0 years; sex=female; race=other
+me0e99ac,sodium=x8 mmol/l; chloride=x10 mmol/l; bicarbonate=x11 mmol/l
+me12c5b1,creatinine=x15 mg/dl; age=x0 years; sex=male; race=other
+me3eb5a7,creatinine=x9 mg/dl; age=x0 years; sex=male; race=other
+me496bd9,weight=x45 kg; sodium=x27 mmol/l; age=x0 years; sex=female
+me4a7434,weight=x11 kg; height=x13 cm
+me4ef865,weight=x1 kg; height=x2 cm
+me63a30f,sodium=x14 mmol/l; chloride=x16 mmol/l; bicarbonate=x17 mmol/l
+mea0d630,weight=x8 kg; height=x2 cm; sex=male
+meaabb90,sodium=x22 mmol/l; urine_sodium=x44 mmol/l; creatinine=x27 mg/dl; urine_creatinine=x45 mg/dl
+meb6622c,weight=x5 kg; height=x4 cm
+mec2798e,weight=x32 kg; sodium=x10 mmol/l; age=x0 days; sex=female
+mee83151,weight=x2 kg; sodium=x89 mmol/l; age=x0 years; sex=female
+meefdce8,weight=x22 kg; sodium=x32 mmol/l; age=x0 years; sex=female
+mefb88da,sodium=x28 mmol/l; chloride=x30 mmol/l; bicarbonate=x31 mmol/l
+mefc12b6,weight=x7 kg; sodium=x29 mmol/l; age=x0 years; sex=male
+mf0586d6,weight=x36 kg; sodium=x3 mmol/l; age=x0 years; sex=female
+mf0b35ed,sodium=x15 mmol/l; chloride=x16 mmol/l; bicarbonate=x31 mmol/l
+mf106a5c,sodium=x23 mmol/l; chloride=x25 mmol/l; bicarbonate=x19 mmol/l
+mf1ae8c3,weight=x8 kg; height=x7 cm
+mf2227c9,weight=x10 kg; height=x8 cm
+mf22a53d,weight=x28 kg; height=x26 cm
+mf328286,sodium=x17 mmol/l; urine_sodium=x40 mmol/l; creatinine=x22 mg/dl; urine_creatinine=x42 mg/dl
+mf5427f8,sodium=x15 mmol/l; chloride=x17 mmol/l; bicarbonate=x18 mmol/l; albumin=x34 g/dl
+mf58cb5b,weight=x7 kg; height=x6 cm
+mf75c088,sodium=x8 mmol/l; bun=x12 mg/dl; glucose=x14 mg/dl
+mf8b0951,weight=x14 kg; height=x13 cm; sex=male
+mf8d7c85,weight=x39 kg; height=x38 cm; sex=male
+mf8ed1b5,creatinine=x5 umol/l; age=x0 years; sex=male; race=other
+mf95b7b7,weight=x3 kg; height=x4 m; sex=female
+mfafa3a0,weight=x13 kg; height=x12 cm
+mfb1710a,sodium=x20 mmol/l; urine_sodium=x40 mmol/l; creatinine=x18 mg/dl; urine_creatinine=x41 mg/dl
+mfb7c0ea,weight=x13 g; height=x15 cm
+mfc52a7b,weight=x13 kg; height=x12 cm
+mfc7ee76,weight=x5 kg; height=x4 cm
+mfccafaa,weight=x1 kg; height=x2 cm
+mfcfed8e,creatinine=x17 mg/dl; age=x0 years; sex=male; race=other
+mfd04f00,sodium=x18 mmol/l; urine_sodium=x40 mmol/l; creatinine=x15 mg/dl; urine_creatinine=x39 mg/dl
+mfd075b5,sodium=x32 mmol/l; chloride=x34 mmol/l; bicarbonate=x37 mmol/l
+mfd3440e,creatinine=x4 mg/dl; age=x0 years; sex=female; race=other
+mfdfc378,weight=x4 kg; height=x42 cm
+mfefbafc,sodium=x20 mmol/l; bun=x23 mg/dl; glucose=x9 mg/dl
+mffe41db,weight=x20 kg; height=x19 cm
