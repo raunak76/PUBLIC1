@@ -116,22 +116,42 @@ def prep(case, order):
         case["gf"] = gold_feats(case)
 
 
+CH = 0
+CMAP = {"NOUN": "N", "PROPN": "N", "ADJ": "N", "NUM": "N", "VERB": "V", "ADP": "P"}
+
+
+def coarse(b):
+    return CMAP.get(b.split("|")[0], "O")
+
+
+def coarse_feats(case, k, co, cb):
+    out = []
+    for n in range(2, len(co) + 1):
+        out.append(("c%d" % n, co[-n:], cb))
+    if co and "V" in co:
+        out.append(("cv", len(co) - 1 - max(i for i, x in enumerate(co) if x == "V"), cb))
+    elif co and len(co) == CH:
+        out.append(("cv", "far", cb))
+    return out
+
+
 def build_graph(case, order):
     need = case["need"]
     m = len(need)
     levels = [dict() for _ in range(9)]
-    levels[0][(tuple([0] * m), ())] = 0
+    levels[0][(tuple([0] * m), (), ())] = 0
+    cls = [coarse(b) for b in case["bl"]]
     edges = [[] for _ in range(8)]
     efs = [[] for _ in range(8)]
     for k in range(8):
         lst = list(levels[k].keys())
         for si, st in enumerate(lst):
-            used, hist = st
+            used, hist, co = st
             for j in range(m):
                 if used[j] < need[j]:
                     nu = list(used)
                     nu[j] += 1
-                    ns = (tuple(nu), (hist + (j,))[-order:])
+                    ns = (tuple(nu), (hist + (j,))[-order:], (co + (cls[j],))[-CH:] if CH else ())
                     if ns not in levels[k + 1]:
                         levels[k + 1][ns] = len(levels[k + 1])
                     a = hist[-1] if hist else -1
@@ -145,6 +165,7 @@ def build_graph(case, order):
                     if k == 7:
                         fs += case["nf"][j]
                     fs += prec_feats(case, used, j)
+                    fs += coarse_feats(case, k, co, cls[j])
                     efs[k].append(filt(fs))
     case["edges"] = edges
     case["efs"] = efs
@@ -221,6 +242,8 @@ def gold_feats(case):
             fs += case["nf"][p[k]]
         used = tuple(sum(1 for t in p[:k] if t == x) for x in range(len(bl)))
         fs += prec_feats(case, used, p[k])
+        co = tuple(coarse(bl[t]) for t in p[:k])[-CH:] if CH else ()
+        fs += coarse_feats(case, k, co, coarse(bl[p[k]]))
     return filt(fs)
 
 
