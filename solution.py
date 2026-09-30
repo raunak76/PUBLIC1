@@ -80,6 +80,26 @@ def hist_feats(case, k, hist, b):
     return out
 
 
+PREC = 0
+
+
+def prec_feats(case, used, j):
+    if not PREC:
+        return []
+    bl = case["bl"]
+    need = case["need"]
+    b = bl[j]
+    out = []
+    for x in range(len(bl)):
+        u = used[x]
+        r = need[x] - u - (1 if x == j else 0)
+        out.append(("pu", b, bl[x], min(u, 2)))
+        out.append(("pr", b, bl[x], min(r, 2)))
+        if PREC > 1:
+            out.append(("pur", b, bl[x], min(u, 2), min(r, 2)))
+    return out
+
+
 def prep(case, order):
     case["cnt"] = Counter(case["inv"])
     case["nvs"] = sum(1 for s in case["slots"] if s[1])
@@ -124,7 +144,8 @@ def build_graph(case, order):
                         fs += hist_feats(case, k, hist, case["bl"][j])
                     if k == 7:
                         fs += case["nf"][j]
-                    efs[k].append(fs)
+                    fs += prec_feats(case, used, j)
+                    efs[k].append(filt(fs))
     case["edges"] = edges
     case["efs"] = efs
     case["nlev"] = [len(l) for l in levels]
@@ -133,6 +154,13 @@ def build_graph(case, order):
 def logsumexp(xs):
     mx = max(xs)
     return mx + math.log(sum(math.exp(x - mx) for x in xs))
+
+
+DROP = set()
+
+
+def filt(fs):
+    return [f for f in fs if f[0] not in DROP]
 
 
 def score_fs(w, fs):
@@ -191,7 +219,9 @@ def gold_feats(case):
             fs += hist_feats(case, k, hist, bl[p[k]])
         if k == 7:
             fs += case["nf"][p[k]]
-    return fs
+        used = tuple(sum(1 for t in p[:k] if t == x) for x in range(len(bl)))
+        fs += prec_feats(case, used, p[k])
+    return filt(fs)
 
 
 def train(cases, epochs, lr, l2, seed):
@@ -221,6 +251,59 @@ def train(cases, epochs, lr, l2, seed):
                 g2[f] = h
                 w[f] = v + lr * g / math.sqrt(h)
     return w
+
+
+def gen_weights(cases, a1=1.0, a2=2.0, a3=3.0):
+    uni = Counter()
+    bi = defaultdict(Counter)
+    tri = defaultdict(Counter)
+    st = Counter()
+    em = {"bs": defaultdict(Counter), "bp": defaultdict(Counter), "bn": defaultdict(Counter)}
+    for c in cases:
+        q = c["seq"]
+        sl = c["slots"]
+        st[q[0]] += 1
+        for k in range(8):
+            uni[q[k]] += 1
+            if k >= 1:
+                bi[q[k - 1]][q[k]] += 1
+            if k >= 2:
+                tri[(q[k - 2], q[k - 1])][q[k]] += 1
+            em["bs"][q[k]][slot_code(sl[k])] += 1
+            em["bp"][q[k]][slot_code(sl[k - 1]) if k > 0 else "BOS"] += 1
+            em["bn"][q[k]][slot_code(sl[k + 1]) if k < 7 else "EOS"] += 1
+    V = sorted(uni)
+    N = sum(uni.values())
+    pu = {b: (uni[b] + a1) / (N + a1 * len(V)) for b in V}
+    pb = {}
+    w = {}
+    for a in V:
+        ta = sum(bi[a].values())
+        for b in V:
+            p = (bi[a][b] + a2 * pu[b]) / (ta + a2)
+            pb[(a, b)] = p
+            w[("t", a, b)] = math.log(p)
+    for (z, a), cnt in tri.items():
+        t = sum(cnt.values())
+        for b in V:
+            p = (cnt[b] + a3 * pb[(a, b)]) / (t + a3)
+            w[("u", z, a, b)] = math.log(p) - math.log(pb[(a, b)])
+    ts = sum(st.values())
+    for b in V:
+        w[("st", b)] = math.log((st[b] + a2 * pu[b]) / (ts + a2)) - math.log(pu[b])
+    for tag, tab in em.items():
+        for b in V:
+            tot = sum(tab[b].values())
+            keys = ["cs", "cS", "Cs", "CS"] + (["BOS"] if tag == "bp" else ["EOS"] if tag == "bn" else [])
+            for kk in keys:
+                w[(tag, b, kk)] = math.log((tab[b][kk] + 0.5) / (tot + 0.5 * len(keys)))
+    for b in V:
+        w[("b", b)] = math.log(pu[b])
+    return w
+
+
+def marginals_T(case, w, T):
+    return marginals(case, {f: v * T for f, v in w.items()})
 
 
 def marginals(case, w):
