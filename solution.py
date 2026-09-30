@@ -52,7 +52,24 @@ def emit_feats(case, k, b):
         ("bcnt", b, min(cnt, 5)),
         ("bkcnt", b, edge, min(cnt, 5)),
         ("bnvs", b, cur, min(nvs, 4)),
-    ]
+    ] + dist_feats(case, k, b)
+
+
+EXTRA = 0
+
+
+def dist_feats(case, k, b):
+    if not EXTRA:
+        return []
+    sl = case["slots"]
+    left = next((d for d in range(1, 9) if k - d >= 0 and sl[k - d][1]), 9)
+    right = next((d for d in range(1, 9) if k + d <= 7 and sl[k + d][1]), 9)
+    out = [("dl", b, min(left, 5) if k - left >= 0 else ("x", min(k, 5))), ("dr", b, min(right, 5) if k + right <= 7 else ("x", min(7 - k, 5)))]
+    if EXTRA > 1:
+        p2 = slot_code(sl[k - 2]) if k > 1 else "BOS"
+        n2 = slot_code(sl[k + 2]) if k < 6 else "EOS"
+        out += [("bp2", b, p2), ("bn2", b, n2)]
+    return out
 
 
 def trans_feats(case, k, a, b):
