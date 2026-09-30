@@ -117,6 +117,21 @@ def prec_feats(case, used, j):
     return out
 
 
+def augment(case, n, rng):
+    out = []
+    bl = sorted(Counter(case["inv"]))
+    idx = {b: i for i, b in enumerate(bl)}
+    for _ in range(n):
+        L = rng.randint(3, 6)
+        st = rng.randint(0, 8 - L)
+        fx = [idx[case["seq"][k]] if not (st <= k < st + L) else None for k in range(8)]
+        if len(set(case["seq"][st:st + L])) < 2:
+            continue
+        c = {"id": case["id"], "inv": case["inv"], "slots": case["slots"], "seq": case["seq"], "fixed": fx}
+        out.append(c)
+    return out
+
+
 def prep(case, order):
     case["cnt"] = Counter(case["inv"])
     case["nvs"] = sum(1 for s in case["slots"] if s[1])
@@ -153,6 +168,7 @@ def coarse_feats(case, k, co, cb):
 
 
 def build_graph(case, order):
+    fixed = case.get("fixed")
     need = case["need"]
     m = len(need)
     levels = [dict() for _ in range(9)]
@@ -165,7 +181,7 @@ def build_graph(case, order):
         for si, st in enumerate(lst):
             used, hist, co = st
             for j in range(m):
-                if used[j] < need[j]:
+                if used[j] < need[j] and (fixed is None or fixed[k] is None or fixed[k] == j):
                     nu = list(used)
                     nu[j] += 1
                     ns = (tuple(nu), (hist + (j,))[-order:], (co + (cls[j],))[-CH:] if CH else ())
